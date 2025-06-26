@@ -1,0 +1,9 @@
+{{ template "base.html" . }}
+
+{{ define "title" }}Mums{{ end }}
+
+{{ define "content" }}
+<h1 class="text-2xl font-bold mb-4">Hello, {{ .Name }}!</h1>
+<p>Welcome to your Go + HTMX + Tailwind webapp.</p>
+{{ end }}
+

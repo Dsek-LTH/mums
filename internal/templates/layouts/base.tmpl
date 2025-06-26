@@ -1,0 +1,31 @@
+{{ define "base" }}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>{{ block "title" . }}{{ end }}</title>
+        <script
+            src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.5/dist/htmx.min.js"
+            integrity="sha384-t4DxZSyQK+0Uv4jzy5B0QyHyWQD2GFURUmxKMBVww9+e2EJ0ei/vCvv7+79z0fkr"
+            crossorigin="anonymous"
+        ></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon"/>
+    </head>
+    <body class="bg-zink-700">
+        <header>
+            {{ block "header" . }}
+            {{ end }}
+        </header>
+        <main>
+            {{ block "content" . }}
+            {{ end }}
+        </main>
+        <footer>
+            {{ block "footer" . }}
+            {{ end }}
+        </footer>
+    </body>
+</html>
+{{ end }}
