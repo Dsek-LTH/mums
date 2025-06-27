@@ -3,13 +3,13 @@ package models
 import "time"
 
 type Mums struct {
-	User *User
+	UserAccount *UserAccount
 	Timestamp time.Time 
 }
 
-func NewMums(user *User, timestamp time.Time) *Mums {
+func NewMums(userAccount *UserAccount, timestamp time.Time) *Mums {
 	return &Mums{
-		User: user,
+		UserAccount: userAccount,
 		Timestamp: timestamp,
 	}
 }
