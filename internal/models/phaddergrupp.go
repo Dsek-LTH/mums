@@ -7,9 +7,9 @@ type Phaddergrupp struct {
 	IconFilePath string
 	PrimaryColor string
 	SecondaryColor string
-	SwishNumber string
 	MumsPrice int64
-	PaymentMessage string
+	SwishRecipientNumber string
+	SwishRecipientName string
 }
 
 func NewPhaddergrupp(name string, iconFilePath string) *Phaddergrupp {
@@ -18,9 +18,9 @@ func NewPhaddergrupp(name string, iconFilePath string) *Phaddergrupp {
 		IconFilePath: iconFilePath,
 		PrimaryColor: config.DefaultPrimaryPhaddergruppColor,
 		SecondaryColor: config.DefaultSecondaryPhaddergruppColor,
-		SwishNumber: "",
 		MumsPrice: 10,
-		PaymentMessage: config.DefaultPaymentMessage,
+		SwishRecipientNumber: "",
+		SwishRecipientName: "",
 	}
 }
 

@@ -5,6 +5,5 @@ const (
 
 	DefaultPrimaryPhaddergruppColor = "#F280A1"
 	DefaultSecondaryPhaddergruppColor = "#9966CC"
-	DefaultPaymentMessage = "Mumsa"
 )
 
