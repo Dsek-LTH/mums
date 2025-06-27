@@ -1,6 +1,10 @@
 package config
 
 const (
-	DBPath = "mums.sqlite3"
+	DBFilePath = "mums.sqlite3"
+
+	DefaultPrimaryPhaddergruppColor = "#F280A1"
+	DefaultSecondaryPhaddergruppColor = "#9966CC"
+	DefaultPaymentMessage = "Mumsa"
 )
 
