@@ -1,18 +1,26 @@
 package models
 
+import "github.com/Dsek-LTH/mums/internal/config"
+
 type Phaddergrupp struct {
-	SwishNumber string
+	Name string
+	IconFilePath string
 	PrimaryColor string
 	SecondaryColor string
-	Icon string
+	SwishNumber string
+	MumsPrice int64
+	PaymentMessage string
 }
 
-func NewPhaddergrupp(swishNumber string, primaryColor string, secondaryColor string, icon string) *Phaddergrupp {
+func NewPhaddergrupp(name string, iconFilePath string) *Phaddergrupp {
 	return &Phaddergrupp{
-		SwishNumber: swishNumber,
-		PrimaryColor: primaryColor,
-		SecondaryColor: secondaryColor,
-		Icon: icon,
+		Name: name,
+		IconFilePath: iconFilePath,
+		PrimaryColor: config.DefaultPrimaryPhaddergruppColor,
+		SecondaryColor: config.DefaultSecondaryPhaddergruppColor,
+		SwishNumber: "",
+		MumsPrice: 10,
+		PaymentMessage: config.DefaultPaymentMessage,
 	}
 }
 
