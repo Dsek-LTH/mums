@@ -1,6 +1,6 @@
 package models
 
-type GlobalRole int32
+type GlobalRole int64
 
 const (
 	Admin GlobalRole = iota

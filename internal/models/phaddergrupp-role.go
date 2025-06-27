@@ -1,6 +1,6 @@
 package models
 
-type PhaddergruppRole int32
+type PhaddergruppRole int64
 
 const (
 	Nolla PhaddergruppRole = iota
