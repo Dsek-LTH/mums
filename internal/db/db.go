@@ -9,13 +9,14 @@ import (
 )
 
 var Schemas = []string{
-		SchemaCredentials,
-		SchemaUsers,
-		SchemaGlobalRoleBindings,
-		SchemaPhaddergrupper,
-		SchemaPhaddergruppBindings,
-		SchemaMums,
-	}
+	SchemaUserAccountRoleMappings,
+	SchemaMums,
+	SchemaPhaddergruppMappings,
+	SchemaPhaddergrupps,
+	SchemaUserAccounts,
+	SchemaUserCredentials,
+	SchemaUserProfiles,
+}
 
 func InitDB(dbFilePath string) (*sql.DB, error) {
 	db, err := sql.Open("sqlite", dbFilePath)

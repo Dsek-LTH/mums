@@ -5,5 +5,6 @@ const (
 
 	DefaultPrimaryPhaddergruppColor = "#F280A1"
 	DefaultSecondaryPhaddergruppColor = "#9966CC"
+	DefaultMumsPriceSEK = "10"
 )
 
