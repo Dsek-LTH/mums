@@ -1,0 +1,12 @@
+root = "."
+
+[build]
+  bin = "tmp/mums"
+  cmd = "go build -o tmp/mums ./cmd/mums"
+  delay = 1000
+  include_ext = ["go", "tmpl"]
+  exclude_dir = ["tmp", "build"]
+
+[run]
+  cmd = "./tmp/mums"
+
