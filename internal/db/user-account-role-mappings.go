@@ -27,3 +27,27 @@ func CreateUserAccountRoleMapping(db *sql.DB, userAccountId int64, userAccountRo
 	return id, err
 }
 
+func HasUserAccountRole(db *sql.DB, userId int64, roles []string) (bool, error) {
+	rows, err := db.Query(`
+		SELECT user_account_role
+		FROM user_account_role_mappings
+		WHERE user_account_id = ?`, userId)
+	if err != nil {
+		return false, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var role string
+		if err := rows.Scan(&role); err != nil {
+			return false, err
+		}
+		for _, r := range roles {
+			if role == r {
+				return true, nil
+			}
+		}
+	}
+	return false, nil
+}
+
