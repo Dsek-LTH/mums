@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS user_accounts (
 	FOREIGN KEY (user_profile_id) REFERENCES user_profiles(id) ON DELETE CASCADE
 );`
 
-func CreateUserAccount(db *sql.DB, userCredentialsId int64, userProfileId int64) (int64, error) {
+func CreateUserAccount(db *sql.DB, userCredentialsId, userProfileId int64) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO user_accounts (user_credentials_id, user_profile_id) VALUES (?, ?)`,
 		userCredentialsId,

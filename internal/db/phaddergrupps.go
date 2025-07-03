@@ -13,18 +13,20 @@ CREATE TABLE IF NOT EXISTS phaddergrupps (
 	icon_file_path TEXT DEFAULT NULL,
 	primary_color TEXT NOT NULL,
 	secondary_color TEXT NOT NULL,
-	mums_price_sek BIGINT NOT NULL,
+	mums_price BIGINT NOT NULL,
+	mums_currency TEXT NOT NULL,
 	swish_recipient_number TEXT DEFAULT NULL,
 	swish_recipient_name TEXT DEFAULT NULL
 );`
 
 func NewPhaddergrupp(db *sql.DB, name string) (int64, error) {
 	res, err := db.Exec(
-		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_sek) VALUES (?, ?, ?, ?)`,
+		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price, mums_currency) VALUES (?, ?, ?, ?, ?)`,
 		name,
 		config.DefaultPrimaryPhaddergruppColor,
 		config.DefaultSecondaryPhaddergruppColor,
-		config.DefaultMumsPriceSEK,
+		config.DefaultMumsPrice,
+		config.DefaultMumsCurrecy,
 	)
 	if err != nil {
 		return 0, err
