@@ -20,6 +20,6 @@ func CreateUserCredentials(db *sql.DB, email string, hashword string) (int64, er
 	if err != nil {
 		return 0, err
 	}
-	id, err := res.LastInsertId()
+	id, err := res.LastInsertID()
 	return id, err
 }

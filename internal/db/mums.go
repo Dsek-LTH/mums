@@ -22,17 +22,17 @@ CREATE TABLE IF NOT EXISTS mums (
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id)
 );`
 
-func CreateMums(db *sql.DB, userAccountId, phaddergruppId int64, mumsType MumsType) (int64, error) {
+func CreateMums(db *sql.DB, userAccountID, phaddergruppID int64, mumsType MumsType) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO mums (user_account_id, phaddergrupp_id, mums_type) VALUES (?, ?, ?)`,
-		userAccountId,
-		phaddergruppId,
+		userAccountID,
+		phaddergruppID,
 		string(mumsType),
 	)
 	if err != nil {
 		return 0, err
 	}
-	id, err := res.LastInsertId()
+	id, err := res.LastInsertID()
 	return id, err
 }
 

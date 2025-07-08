@@ -17,22 +17,22 @@ CREATE TABLE IF NOT EXISTS phaddergrupp_mappings (
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id) ON DELETE CASCADE
 );`
 
-func CreatePhaddergruppMapping(db *sql.DB, userAccountId, phaddergruppId int64, phaddergruppRole models.PhaddergruppRole) error {
+func CreatePhaddergruppMapping(db *sql.DB, userAccountID, phaddergruppID int64, phaddergruppRole models.PhaddergruppRole) error {
 	_, err := db.Exec(
 		`INSERT INTO phaddergrupp_mappings (user_account_id, phaddergrupp_id, phaddergrupp_role) VALUES (?, ?, ?)`,
-		userAccountId,
-		phaddergruppId,
+		userAccountID,
+		phaddergruppID,
 		string(phaddergruppRole),
 	)
 	return err
 }
 
-func HasGroupRole(db *sql.DB, userId, groupId int64, roles []string) (bool, error) {
+func HasGroupRole(db *sql.DB, userID, groupID int64, roles []string) (bool, error) {
 	rows, err := db.Query(`
 		SELECT phaddergrupp_role
 		FROM phaddergrupp_mappings
 		WHERE user_account_id = ? AND phaddergrupp_id = ?`,
-		userId, groupId)
+		userID, groupID)
 	if err != nil {
 		return false, err
 	}
