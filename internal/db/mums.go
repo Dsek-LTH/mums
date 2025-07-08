@@ -7,7 +7,7 @@ import (
 type MumsType string
 
 const (
-	Purchase MumsType = "purchase"
+	Purchase    MumsType = "purchase"
 	Consumption MumsType = "consumption"
 )
 
@@ -35,4 +35,3 @@ func CreateMums(db *sql.DB, userAccountID, phaddergruppID int64, mumsType MumsTy
 	id, err := res.LastInsertId()
 	return id, err
 }
-

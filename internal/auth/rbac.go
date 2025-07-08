@@ -15,8 +15,8 @@ import (
 )
 
 func UserAccountRBACMiddleware() echo.MiddlewareFunc {
-	return func (next echo.HandlerFunc) echo.HandlerFunc {
-		return func (c echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
 			userAccountRoles, err := db.ReadUserAccountRoles(db.GetDB(c), GetUserAccountID(c))
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
@@ -51,8 +51,8 @@ func GetIsSuperAdmin(c echo.Context) bool {
 }
 
 func RequireUserAccountRole(allowedUserAccountRoles ...roles.UserAccountRole) echo.MiddlewareFunc {
-	return func (next echo.HandlerFunc) echo.HandlerFunc {
-		return func (c echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
 			if GetIsSuperAdmin(c) {
 				return next(c)
 			}
@@ -62,15 +62,15 @@ func RequireUserAccountRole(allowedUserAccountRoles ...roles.UserAccountRole) ec
 					return next(c)
 				}
 			}
-			
+
 			return echo.NewHTTPError(http.StatusForbidden, "Forbidden: User is missing a required user account role")
 		}
 	}
 }
 
 func PhaddergruppRBACMiddleware() echo.MiddlewareFunc {
-	return func (next echo.HandlerFunc) echo.HandlerFunc {
-		return func (c echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
 			phaddergruppIDString := c.Param("phaddergrupp_id")
 			if phaddergruppIDString == "" {
 				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Missing phaddergrupp_id parameter")
@@ -103,8 +103,8 @@ func GetPhaddergruppRole(c echo.Context) roles.PhaddergruppRole {
 }
 
 func RequirePhaddergruppRole(allowedPhaddergruppRoles ...roles.PhaddergruppRole) echo.MiddlewareFunc {
-	return func (next echo.HandlerFunc) echo.HandlerFunc {
-		return func (c echo.Context) error {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
 			if GetIsSuperAdmin(c) {
 				return next(c)
 			}
@@ -112,9 +112,8 @@ func RequirePhaddergruppRole(allowedPhaddergruppRoles ...roles.PhaddergruppRole)
 			if slices.Contains(allowedPhaddergruppRoles, GetPhaddergruppRole(c)) {
 				return next(c)
 			}
-			
+
 			return echo.NewHTTPError(http.StatusForbidden, "Forbidden: User is missing a required phaddergrupp role")
 		}
 	}
 }
-

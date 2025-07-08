@@ -54,4 +54,3 @@ func ReadPhaddergruppRole(db *sql.DB, userAccountID, phaddergruppID int64) (role
 
 	return phaddergruppRole, nil
 }
-

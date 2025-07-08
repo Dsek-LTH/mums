@@ -53,4 +53,3 @@ func ReadUserAccountRoles(db *sql.DB, userAccountID int64) ([]roles.UserAccountR
 
 	return userAccountRoles, nil
 }
-

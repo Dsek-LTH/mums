@@ -2,8 +2,8 @@ package main
 
 import (
 	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/config"
+	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/routes"
 	"github.com/Dsek-LTH/mums/internal/templates"
 
@@ -35,4 +35,3 @@ func main() {
 
 	e.Start(":11337")
 }
-

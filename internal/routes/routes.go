@@ -32,4 +32,3 @@ func RegisterRoutes(e *echo.Echo) {
 
 	phaddergrupp.GET("/:phaddergrupp_id/event_stream", handlers.StreamPhaddergruppEvents, auth.RequirePhaddergruppRole(roles.Nolla, roles.Phadder))
 }
-

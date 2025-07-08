@@ -16,7 +16,7 @@ import (
 var tmplFS embed.FS
 
 type TemplateRenderer struct {
-    templates map[string]*template.Template
+	templates map[string]*template.Template
 }
 
 func (tR *TemplateRenderer) Render(w io.Writer, name string, data any, _ echo.Context) error {
@@ -25,7 +25,7 @@ func (tR *TemplateRenderer) Render(w io.Writer, name string, data any, _ echo.Co
 		return errors.New("template not found")
 	}
 
-    return tmpl.ExecuteTemplate(w, "base", data)
+	return tmpl.ExecuteTemplate(w, "base", data)
 }
 
 func NewTemplateRenderer() *TemplateRenderer {
@@ -61,6 +61,5 @@ func NewTemplateRenderer() *TemplateRenderer {
 }
 
 func LoadTemplates(e *echo.Echo) {
-    e.Renderer = NewTemplateRenderer()
+	e.Renderer = NewTemplateRenderer()
 }
-

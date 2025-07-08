@@ -46,13 +46,13 @@ func InitDB(dbFilePath string) (*sql.DB, error) {
 }
 
 func DBMiddleware(db *sql.DB) echo.MiddlewareFunc {
-    return func(next echo.HandlerFunc) echo.HandlerFunc {
-        return func(c echo.Context) error {
-            c.Set(config.CTXKeyDB, db)
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(c echo.Context) error {
+			c.Set(config.CTXKeyDB, db)
 
-            return next(c)
-        }
-    }
+			return next(c)
+		}
+	}
 }
 
 func GetDB(c echo.Context) *sql.DB {
@@ -62,4 +62,3 @@ func GetDB(c echo.Context) *sql.DB {
 	}
 	return db
 }
-

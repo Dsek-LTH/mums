@@ -12,8 +12,8 @@ import (
 )
 
 type Session struct {
-    UserAccountID int64
-    ExpiresAt time.Time
+	UserAccountID int64
+	ExpiresAt     time.Time
 }
 
 func NewSession(userAccountID int64) *Session {
@@ -29,40 +29,40 @@ func (s *Session) IsExpired() bool {
 
 type SessionStore struct {
 	sync.RWMutex
-	sessions map[string]*Session  // sessionID -> userAccountID
+	sessions map[string]*Session // sessionID -> userAccountID
 }
 
 func NewSessionStore() *SessionStore {
 	return &SessionStore{sessions: make(map[string]*Session)}
 }
 
-func (s *SessionStore)  Create(userAccountID int64) string {
+func (s *SessionStore) Create(userAccountID int64) string {
 	sessionID, _ := token.GenerateSecure(config.SessionIDLength)
 	session := NewSession(userAccountID)
 
 	s.Lock()
 	s.sessions[sessionID] = session
 	s.Unlock()
-	
+
 	return sessionID
 }
 
 func (s *SessionStore) Get(sessionID string) (*Session, bool) {
-    s.RLock()
-    session, ok := s.sessions[sessionID]
-    s.RUnlock()
+	s.RLock()
+	session, ok := s.sessions[sessionID]
+	s.RUnlock()
 
-    return session, ok
+	return session, ok
 }
 
 func (s *SessionStore) Delete(sessionID string) {
-    s.Lock()
-    delete(s.sessions, sessionID)
-    s.Unlock()
+	s.Lock()
+	delete(s.sessions, sessionID)
+	s.Unlock()
 }
 
 func loginRedirect(c echo.Context) error {
-    return c.Redirect(http.StatusSeeOther, "/login")
+	return c.Redirect(http.StatusSeeOther, "/login")
 }
 
 func SessionMiddleware(sessionStore *SessionStore) echo.MiddlewareFunc {
@@ -70,18 +70,18 @@ func SessionMiddleware(sessionStore *SessionStore) echo.MiddlewareFunc {
 		return func(c echo.Context) error {
 			cookie, err := c.Cookie(config.SessionCookieName)
 			if err != nil {
-				return loginRedirect(c)	
+				return loginRedirect(c)
 			}
 			sessionID := cookie.Value
 
 			session, ok := sessionStore.Get(sessionID)
-			if !ok  {
-				return loginRedirect(c)	
+			if !ok {
+				return loginRedirect(c)
 			}
 
 			if session.IsExpired() {
 				sessionStore.Delete(sessionID)
-				loginRedirect(c)	
+				loginRedirect(c)
 			}
 
 			c.Set(config.CTXKeyUserAccountID, session.UserAccountID)
@@ -99,4 +99,3 @@ func GetUserAccountID(c echo.Context) int64 {
 
 	return userAccountID
 }
-

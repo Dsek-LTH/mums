@@ -6,7 +6,7 @@ const (
 	CTXKeyUserAccountID = "userAccountID"
 
 	CTXKeyUserAccountRoles = "userAccountRoles"
-	CTXKeyIsSuperAdmin = "isSuperAdmin"
+	CTXKeyIsSuperAdmin     = "isSuperAdmin"
 
 	CTXKeyPhaddergruppRole = "phaddergruppRole"
 )

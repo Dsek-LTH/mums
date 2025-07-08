@@ -4,6 +4,5 @@ type UserAccountRole string
 
 const (
 	SuperAdmin UserAccountRole = "super_admin"
-	Admin UserAccountRole = "admin"
+	Admin      UserAccountRole = "admin"
 )
-
