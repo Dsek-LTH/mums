@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 
+	"github.com/Dsek-LTH/mums/internal/config"
 	"github.com/labstack/echo/v4"
 	_ "modernc.org/sqlite"
 )
@@ -47,16 +48,17 @@ func InitDB(dbFilePath string) (*sql.DB, error) {
 func DBMiddleware(db *sql.DB) echo.MiddlewareFunc {
     return func(next echo.HandlerFunc) echo.HandlerFunc {
         return func(c echo.Context) error {
-            c.Set("db", db)
+            c.Set(config.CTXKeyDB, db)
+
             return next(c)
         }
     }
 }
 
 func GetDB(c echo.Context) *sql.DB {
-	db, ok := c.Get("db").(*sql.DB)
-	if !ok || db == nil {
-		panic("no database in context")
+	db, ok := c.Get(config.CTXKeyDB).(*sql.DB)
+	if !ok {
+		panic("config.CTXKeyDB is not set in context, was DBMIddleware not applied?")
 	}
 	return db
 }

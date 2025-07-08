@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"slices"
 
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
@@ -28,26 +27,30 @@ func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRo
 	return id, err
 }
 
-func HasUserAccountRole(db *sql.DB, userAccountID int64, anyOfUserAccountRoles ...roles.UserAccountRole) (bool, error) {
+func ReadUserAccountRoles(db *sql.DB, userAccountID int64) ([]roles.UserAccountRole, error) {
 	rows, err := db.Query(`
 		SELECT user_account_role
 		FROM user_account_role_mappings
 		WHERE user_account_id = ?`, userAccountID)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 	defer rows.Close()
 
+	var userAccountRoles []roles.UserAccountRole
+
 	for rows.Next() {
-		var role roles.UserAccountRole
-		if err := rows.Scan(&role); err != nil {
-			return false, err
+		var userAccountRole roles.UserAccountRole
+		if err := rows.Scan(&userAccountRole); err != nil {
+			return nil, err
 		}
-		
-		if slices.Contains(anyOfUserAccountRoles, role) {
-			return true, nil
-		}
+		userAccountRoles = append(userAccountRoles, userAccountRole)
 	}
-	return false, nil
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return userAccountRoles, nil
 }
 

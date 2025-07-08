@@ -36,3 +36,7 @@ func NewPhaddergrupp(db *sql.DB, name string) (int64, error) {
 	return id, err
 }
 
+func PhaddergruppContainsUserAccount(db *sql.DB, userAccountID int64) {
+
+}
+

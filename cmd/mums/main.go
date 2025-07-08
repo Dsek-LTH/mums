@@ -13,6 +13,7 @@ import (
 
 func main() {
 	e := echo.New()
+
 	e.Use(middleware.Logger())
 
 	dbInstance, err := db.InitDB(config.DBFilePath)
@@ -24,7 +25,10 @@ func main() {
 	sessionStore := auth.NewSessionStore()
 	e.Use(auth.SessionMiddleware(sessionStore))
 
+	e.Use(auth.UserAccountRBACMiddleware())
+
 	templates.LoadTemplates(e)
+
 	routes.RegisterRoutes(e)
 
 	e.Static("/static", "web/static")

@@ -28,27 +28,30 @@ func CreatePhaddergruppMapping(db *sql.DB, userAccountID, phaddergruppID int64, 
 	return err
 }
 
-func HasPhaddergruppRole(db *sql.DB, userAccountID, phaddergruppID int64, anyOfPhaddergruppRoles ...roles.PhaddergruppRole) (bool, error) {
+func ReadPhaddergruppRole(db *sql.DB, userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
 	rows, err := db.Query(`
 		SELECT phaddergrupp_role
 		FROM phaddergrupp_mappings
 		WHERE user_account_id = ? AND phaddergrupp_id = ?`,
 		userAccountID, phaddergruppID)
 	if err != nil {
-		return false, err
+		return "", err
 	}
 	defer rows.Close()
 
-	for rows.Next() {
-		var role roles.PhaddergruppRole
-		if err := rows.Scan(&role); err != nil {
-			return false, err
-		}
-
-		if slices.Contains(anyOfPhaddergruppRoles, role) {
-			return true, nil
-		}
+	if !rows.Next() {
+		return "", sql.ErrNoRows
 	}
-	return false, nil
+
+	var phaddergruppRole roles.PhaddergruppRole
+	if err := rows.Scan(&phaddergruppRole); err != nil {
+		return "", err
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", err
+	}
+
+	return phaddergruppRole, nil
 }
 

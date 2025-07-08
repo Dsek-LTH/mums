@@ -84,15 +84,19 @@ func SessionMiddleware(sessionStore *SessionStore) echo.MiddlewareFunc {
 				loginRedirect(c)	
 			}
 
-			c.Set("userAccountID", session.UserAccountID)
+			c.Set(config.CTXKeyUserAccountID, session.UserAccountID)
 
 			return next(c)
 		}
 	}
 }
 
-func GetUserAccountID(c echo.Context) (int64, bool) {
-	userAccountID, ok := c.Get("userAccountID").(int64)
-	return userAccountID, ok
+func GetUserAccountID(c echo.Context) int64 {
+	userAccountID, ok := c.Get(config.CTXKeyUserAccountID).(int64)
+	if !ok {
+		panic("config.CTXKeyUserAccountID is not set in context, was SessionMiddleware not applied?")
+	}
+
+	return userAccountID
 }
 
