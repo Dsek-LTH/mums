@@ -1,4 +1,4 @@
-package models
+package roles
 
 type PhaddergruppRole string
 
