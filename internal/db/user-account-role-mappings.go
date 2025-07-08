@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"slices"
 
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
@@ -14,7 +15,7 @@ CREATE TABLE IF NOT EXISTS user_account_role_mappings (
 	FOREIGN KEY (user_account_id) REFERENCES user_accounts(id) ON DELETE CASCADE
 );`
 
-func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRole models.UserAccountRole) (int64, error) {
+func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRole roles.UserAccountRole) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO user_account_role_mappings (user_account_id, user_account_role) VALUES (?, ?)`,
 		userAccountID,
@@ -27,7 +28,7 @@ func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRo
 	return id, err
 }
 
-func HasUserAccountRole(db *sql.DB, userAccountID int64, roles []string) (bool, error) {
+func HasUserAccountRole(db *sql.DB, userAccountID int64, anyOfUserAccountRoles ...roles.UserAccountRole) (bool, error) {
 	rows, err := db.Query(`
 		SELECT user_account_role
 		FROM user_account_role_mappings
@@ -38,14 +39,13 @@ func HasUserAccountRole(db *sql.DB, userAccountID int64, roles []string) (bool, 
 	defer rows.Close()
 
 	for rows.Next() {
-		var role string
+		var role roles.UserAccountRole
 		if err := rows.Scan(&role); err != nil {
 			return false, err
 		}
-		for _, r := range roles {
-			if role == r {
-				return true, nil
-			}
+		
+		if slices.Contains(anyOfUserAccountRoles, role) {
+			return true, nil
 		}
 	}
 	return false, nil
