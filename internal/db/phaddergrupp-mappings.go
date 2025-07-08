@@ -27,12 +27,12 @@ func CreatePhaddergruppMapping(db *sql.DB, userAccountID, phaddergruppID int64, 
 	return err
 }
 
-func HasGroupRole(db *sql.DB, userID, groupID int64, roles []string) (bool, error) {
+func HasGroupRole(db *sql.DB, userAccountID, groupID int64, roles []string) (bool, error) {
 	rows, err := db.Query(`
 		SELECT phaddergrupp_role
 		FROM phaddergrupp_mappings
 		WHERE user_account_id = ? AND phaddergrupp_id = ?`,
-		userID, groupID)
+		userAccountID, groupID)
 	if err != nil {
 		return false, err
 	}

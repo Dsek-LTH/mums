@@ -92,7 +92,7 @@ func SessionMiddleware(sessionStore *SessionStore) echo.MiddlewareFunc {
 }
 
 func GetUserAccountID(c echo.Context) (int64, bool) {
-	userID, ok := c.Get("userAccountID").(int64)
-	return userID, ok
+	userAccountID, ok := c.Get("userAccountID").(int64)
+	return userAccountID, ok
 }
 

@@ -27,11 +27,11 @@ func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRo
 	return id, err
 }
 
-func HasUserAccountRole(db *sql.DB, userID int64, roles []string) (bool, error) {
+func HasUserAccountRole(db *sql.DB, userAccountID int64, roles []string) (bool, error) {
 	rows, err := db.Query(`
 		SELECT user_account_role
 		FROM user_account_role_mappings
-		WHERE user_account_id = ?`, userID)
+		WHERE user_account_id = ?`, userAccountID)
 	if err != nil {
 		return false, err
 	}
