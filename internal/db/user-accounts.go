@@ -22,5 +22,5 @@ func CreateUserAccount(db *sql.DB, userCredentialsID, userProfileID int64) (int6
 	if err != nil {
 		return 0, err
 	}
-	return res.LastInsertID()
+	return res.LastInsertId()
 }

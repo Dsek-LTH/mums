@@ -15,5 +15,5 @@ func CreateUserProfile(db *sql.DB, name string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	return res.LastInsertID()
+	return res.LastInsertId()
 }

@@ -32,7 +32,7 @@ func CreateMums(db *sql.DB, userAccountID, phaddergruppID int64, mumsType MumsTy
 	if err != nil {
 		return 0, err
 	}
-	id, err := res.LastInsertID()
+	id, err := res.LastInsertId()
 	return id, err
 }
 

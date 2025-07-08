@@ -23,7 +23,7 @@ func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRo
 	if err != nil {
 		return 0, err
 	}
-	id, err := res.LastInsertID()
+	id, err := res.LastInsertId()
 	return id, err
 }
 

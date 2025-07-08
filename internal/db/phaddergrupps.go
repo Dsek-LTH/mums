@@ -32,7 +32,7 @@ func NewPhaddergrupp(db *sql.DB, name string) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	id, err := res.LastInsertID()
+	id, err := res.LastInsertId()
 	return id, err
 }
 
