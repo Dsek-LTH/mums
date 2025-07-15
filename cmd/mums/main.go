@@ -33,5 +33,5 @@ func main() {
 
 	e.Static("/static", "web/static")
 
-	e.Start(":11337")
+	e.Start(config.ServerAddress)
 }
