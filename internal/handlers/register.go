@@ -6,6 +6,10 @@ import (
     "github.com/labstack/echo/v4"
 )
 
-func Register(c echo.Context) error {
+func GetRegister(c echo.Context) error {
     return c.Render(http.StatusOK, "register", map[string]interface{}{})
+}
+
+func PostRegister(c echo.Context) error {
+    return nil
 }

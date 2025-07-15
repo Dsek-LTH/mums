@@ -6,7 +6,11 @@ import (
     "github.com/labstack/echo/v4"
 )
 
-func Login(c echo.Context) error {
+func GetLogin(c echo.Context) error {
     return c.Render(http.StatusOK, "login", map[string]interface{}{})
+}
+
+func PostLogin(c echo.Context) error {
+    return nil
 }
 

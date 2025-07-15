@@ -6,7 +6,11 @@ import (
     "github.com/labstack/echo/v4"
 )
 
-func Admin(c echo.Context) error {
+func GetAdmin(c echo.Context) error {
+    return c.Render(http.StatusOK, "admin", map[string]interface{}{})
+}
+
+func PostAdmin(c echo.Context) error {
     return c.Render(http.StatusOK, "admin", map[string]interface{}{})
 }
 
