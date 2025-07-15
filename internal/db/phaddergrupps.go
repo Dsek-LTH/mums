@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS phaddergrupps (
 	mums_price_nolla BIGINT NOT NULL,
 	mums_price_phadder BIGINT NOT NULL,
 	mums_currency TEXT NOT NULL,
-	swish_recipient_number TEXT DEFAULT NULL,
+	swish_recipient_number TEXT DEFAULT NULL
 );`
 
 func (db *DB) NewPhaddergrupp(name string) (int64, error) {
