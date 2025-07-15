@@ -1,9 +1,5 @@
 package db
 
-import (
-	"database/sql"
-)
-
 const SchemaUserAccounts = `
 CREATE TABLE IF NOT EXISTS user_accounts (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -13,7 +9,7 @@ CREATE TABLE IF NOT EXISTS user_accounts (
 	FOREIGN KEY (user_profile_id) REFERENCES user_profiles(id) ON DELETE CASCADE
 );`
 
-func CreateUserAccount(db *sql.DB, userCredentialsID, userProfileID int64) (int64, error) {
+func (db *DB) CreateUserAccount(userCredentialsID, userProfileID int64) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO user_accounts (user_credentials_id, user_profile_id) VALUES (?, ?)`,
 		userCredentialsID,
@@ -22,5 +18,12 @@ func CreateUserAccount(db *sql.DB, userCredentialsID, userProfileID int64) (int6
 	if err != nil {
 		return 0, err
 	}
+
+	db.Emit(DBEvent{
+		"user_accounts",
+		DBCreate,
+		nil,
+	})
+
 	return res.LastInsertId()
 }

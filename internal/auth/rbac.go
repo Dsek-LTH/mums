@@ -17,7 +17,7 @@ import (
 func UserAccountRBACMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			userAccountRoles, err := db.ReadUserAccountRoles(db.GetDB(c), GetUserAccountID(c))
+			userAccountRoles, err := db.GetDB(c).ReadUserAccountRoles(GetUserAccountID(c))
 			if err != nil {
 				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
 			}
@@ -79,7 +79,7 @@ func PhaddergruppRBACMiddleware() echo.MiddlewareFunc {
 			if err != nil {
 				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Invalid phaddergrupp_id")
 			}
-			phaddergruppRole, err := db.ReadPhaddergruppRole(db.GetDB(c), GetUserAccountID(c), phaddergruppID)
+			phaddergruppRole, err := db.GetDB(c).ReadPhaddergruppRole(GetUserAccountID(c), phaddergruppID)
 			if err != nil {
 				if err == sql.ErrNoRows {
 					return echo.NewHTTPError(http.StatusForbidden, "Forbidden: User account does not have access to this phaddergrupp")

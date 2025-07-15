@@ -16,11 +16,11 @@ func main() {
 
 	e.Use(middleware.Logger())
 
-	dbInstance, err := db.InitDB(config.DBFilePath)
+	database, err := db.NewDB(config.DBFilePath)
 	if err != nil {
 		panic(err)
 	}
-	e.Use(db.DBMiddleware(dbInstance))
+	e.Use(db.DBMiddleware(database))
 
 	sessionStore := auth.NewSessionStore()
 	e.Use(auth.SessionMiddleware(sessionStore))

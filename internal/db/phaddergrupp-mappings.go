@@ -2,7 +2,6 @@ package db
 
 import (
 	"database/sql"
-	"slices"
 
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
@@ -18,17 +17,24 @@ CREATE TABLE IF NOT EXISTS phaddergrupp_mappings (
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id) ON DELETE CASCADE
 );`
 
-func CreatePhaddergruppMapping(db *sql.DB, userAccountID, phaddergruppID int64, phaddergruppRole roles.PhaddergruppRole) error {
+func (db *DB) CreatePhaddergruppMapping(userAccountID, phaddergruppID int64, phaddergruppRole roles.PhaddergruppRole) error {
 	_, err := db.Exec(
 		`INSERT INTO phaddergrupp_mappings (user_account_id, phaddergrupp_id, phaddergrupp_role) VALUES (?, ?, ?)`,
 		userAccountID,
 		phaddergruppID,
 		string(phaddergruppRole),
 	)
+
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBCreate,
+		nil,
+	})
+
 	return err
 }
 
-func ReadPhaddergruppRole(db *sql.DB, userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
+func (db *DB) ReadPhaddergruppRole(userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
 	rows, err := db.Query(`
 		SELECT phaddergrupp_role
 		FROM phaddergrupp_mappings
@@ -51,6 +57,12 @@ func ReadPhaddergruppRole(db *sql.DB, userAccountID, phaddergruppID int64) (role
 	if err := rows.Err(); err != nil {
 		return "", err
 	}
+	
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBRead,
+		nil,
+	})
 
 	return phaddergruppRole, nil
 }

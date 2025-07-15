@@ -1,9 +1,5 @@
 package db
 
-import (
-	"database/sql"
-)
-
 const SchemaUserCredentials = `
 CREATE TABLE IF NOT EXISTS user_credentials (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -11,7 +7,7 @@ CREATE TABLE IF NOT EXISTS user_credentials (
 	hashword TEXT NOT NULL
 );`
 
-func CreateUserCredentials(db *sql.DB, email string, hashword string) (int64, error) {
+func (db *DB) CreateUserCredentials(email string, hashword string) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO user_credentials (email, hashword) VALUES (?, ?)`,
 		email,
@@ -21,5 +17,12 @@ func CreateUserCredentials(db *sql.DB, email string, hashword string) (int64, er
 		return 0, err
 	}
 	id, err := res.LastInsertId()
+
+	db.Emit(DBEvent{
+		"user_credentials",
+		DBCreate,
+		nil,
+	})
+
 	return id, err
 }

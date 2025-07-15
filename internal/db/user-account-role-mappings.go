@@ -1,8 +1,6 @@
 package db
 
 import (
-	"database/sql"
-
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
 
@@ -14,7 +12,7 @@ CREATE TABLE IF NOT EXISTS user_account_role_mappings (
 	FOREIGN KEY (user_account_id) REFERENCES user_accounts(id) ON DELETE CASCADE
 );`
 
-func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRole roles.UserAccountRole) (int64, error) {
+func (db *DB) CreateUserAccountRoleMapping(userAccountID int64, userAccountRole roles.UserAccountRole) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO user_account_role_mappings (user_account_id, user_account_role) VALUES (?, ?)`,
 		userAccountID,
@@ -24,10 +22,17 @@ func CreateUserAccountRoleMapping(db *sql.DB, userAccountID int64, userAccountRo
 		return 0, err
 	}
 	id, err := res.LastInsertId()
+
+	db.Emit(DBEvent{
+		"user_account_role_mappings",
+		DBCreate,
+		nil,
+	})
+
 	return id, err
 }
 
-func ReadUserAccountRoles(db *sql.DB, userAccountID int64) ([]roles.UserAccountRole, error) {
+func (db *DB) ReadUserAccountRoles(userAccountID int64) ([]roles.UserAccountRole, error) {
 	rows, err := db.Query(`
 		SELECT user_account_role
 		FROM user_account_role_mappings
@@ -50,6 +55,12 @@ func ReadUserAccountRoles(db *sql.DB, userAccountID int64) ([]roles.UserAccountR
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
+	db.Emit(DBEvent{
+		"user_account_role_mappings",
+		DBRead,
+		nil,
+	})
 
 	return userAccountRoles, nil
 }

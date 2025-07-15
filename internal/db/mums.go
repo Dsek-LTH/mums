@@ -1,9 +1,5 @@
 package db
 
-import (
-	"database/sql"
-)
-
 type MumsType string
 
 const (
@@ -22,7 +18,7 @@ CREATE TABLE IF NOT EXISTS mums (
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id)
 );`
 
-func CreateMums(db *sql.DB, userAccountID, phaddergruppID int64, mumsType MumsType) (int64, error) {
+func (db *DB) CreateMums(userAccountID, phaddergruppID int64, mumsType MumsType) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO mums (user_account_id, phaddergrupp_id, mums_type) VALUES (?, ?, ?)`,
 		userAccountID,
@@ -33,5 +29,12 @@ func CreateMums(db *sql.DB, userAccountID, phaddergruppID int64, mumsType MumsTy
 		return 0, err
 	}
 	id, err := res.LastInsertId()
+
+	db.Emit(DBEvent{
+		"mums",
+		DBCreate,
+		nil,
+	})
+
 	return id, err
 }

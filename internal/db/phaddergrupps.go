@@ -1,8 +1,6 @@
 package db
 
 import (
-	"database/sql"
-
 	"github.com/Dsek-LTH/mums/internal/config"
 )
 
@@ -19,7 +17,7 @@ CREATE TABLE IF NOT EXISTS phaddergrupps (
 	swish_recipient_number TEXT DEFAULT NULL,
 );`
 
-func NewPhaddergrupp(db *sql.DB, name string) (int64, error) {
+func (db *DB) NewPhaddergrupp(name string) (int64, error) {
 	res, err := db.Exec(
 		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_nolla, mums_price_phadder, mums_currency) VALUES (?, ?, ?, ?, ?)`,
 		name,
@@ -33,9 +31,12 @@ func NewPhaddergrupp(db *sql.DB, name string) (int64, error) {
 		return 0, err
 	}
 	id, err := res.LastInsertId()
+
+	db.Emit(DBEvent{
+		"phaddergrupps",
+		DBCreate,
+		nil,
+	})
+
 	return id, err
-}
-
-func PhaddergruppContainsUserAccount(db *sql.DB, userAccountID int64) {
-
 }
