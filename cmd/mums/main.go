@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Dsek-LTH/mums/internal/auth"
 	"github.com/Dsek-LTH/mums/internal/config"
 	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/routes"
@@ -21,11 +20,6 @@ func main() {
 		panic(err)
 	}
 	e.Use(db.DBMiddleware(database))
-
-	sessionStore := auth.NewSessionStore()
-	e.Use(auth.SessionMiddleware(sessionStore))
-
-	e.Use(auth.UserAccountRBACMiddleware())
 
 	templates.LoadTemplates(e)
 
