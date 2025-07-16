@@ -6,23 +6,25 @@
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>{{ block "title" . }}{{ end }}</title>
         <script
-            src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.5/dist/htmx.min.js"
-            integrity="sha384-t4DxZSyQK+0Uv4jzy5B0QyHyWQD2GFURUmxKMBVww9+e2EJ0ei/vCvv7+79z0fkr"
-            crossorigin="anonymous"
-        ></script>
+            src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js"
+            integrity="sha384-Akqfrbj/HpNVo8k11SXBb6TlBWmXXlYQrCSqEWmyKJe+hDm3Z/B2WVG4smwBkRVm"
+            crossorigin="anonymous">
+        </script>
         <script src="https://cdn.tailwindcss.com"></script>
         <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon"/>
+        <link rel="stylesheet" href="/static/css/fonts.css"/>
+        <link rel="stylesheet" href="/static/css/colors.css"/>
     </head>
-    <body class="bg-zink-700">
-        <header>
+    <body class="min-h-screen flex flex-col font-iosevka">
+        <header role="banner">
             {{ block "header" . }}
             {{ end }}
         </header>
-        <main>
+        <main role="main" class="flex-grow flex items-center justify-center">
             {{ block "content" . }}
             {{ end }}
         </main>
-        <footer>
+        <footer role="contentinfo">
             {{ block "footer" . }}
             {{ end }}
         </footer>
