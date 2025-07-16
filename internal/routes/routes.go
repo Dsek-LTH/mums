@@ -8,15 +8,18 @@ import (
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
 
-func RegisterRoutes(e *echo.Echo) {
+func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
+	e.Use(auth.SessionMiddleware(ss))
+
 	e.GET("/login", handlers.GetLogin)
-	e.POST("/login", handlers.PostLogin)
+	e.POST("/login", handlers.PostLogin(ss))
 	e.GET("/register", handlers.GetRegister)
-	e.POST("/register", handlers.PostRegister)
+	e.POST("/register", handlers.PostRegister(ss))
+	e.GET("/about", handlers.GetAbout)
+	e.GET("/work-in-progress", handlers.GetWorkInProgress)
 
 	protected := e.Group("")
-	sessionStore := auth.NewSessionStore()
-	protected.Use(auth.SessionMiddleware(sessionStore))
+	protected.Use(auth.RequireSession())
 	protected.Use(auth.UserAccountRBACMiddleware())
 
 	protected.GET("/", handlers.GetHome)

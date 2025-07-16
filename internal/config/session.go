@@ -4,6 +4,7 @@ import "time"
 
 const (
 	SessionIDLength       = 128
-	SessionExpirationTime = 24 * time.Hour
+	SessionExpirationTime = 7 * 24 * time.Hour
 	SessionCookieName     = "session_id"
+	SessionCleanupInterval = 10 * time.Minute
 )

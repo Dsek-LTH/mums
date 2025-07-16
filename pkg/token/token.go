@@ -5,12 +5,10 @@ import (
 	"encoding/base64"
 )
 
-func GenerateSecure(length int) (string, error) {
-	token := make([]byte, length)
-	_, err := rand.Read(token)
-	if err != nil {
-		return "", err
-	}
-
-	return base64.URLEncoding.EncodeToString(token), nil
+func MustGenerateSecure(length int) string {
+    token := make([]byte, length)
+    if _, err := rand.Read(token); err != nil {
+        panic("failed to generate secure random token: " + err.Error())
+    }
+    return base64.URLEncoding.EncodeToString(token)
 }
