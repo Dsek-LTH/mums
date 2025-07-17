@@ -57,7 +57,7 @@ func NewSessionStore() *SessionStore {
 	return ss
 }
 
-func (ss *SessionStore) Create(userAccountID int64) string {
+func (ss *SessionStore) CreateSession(userAccountID int64) string {
 	// token.GenerateSecure is guaranteed not to return an error
 	sid := token.MustGenerateSecure(config.SessionIDLength)
 	s := newSession(userAccountID)
@@ -69,7 +69,7 @@ func (ss *SessionStore) Create(userAccountID int64) string {
 	return sid
 }
 
-func (ss *SessionStore) Get(sid string) (*session, bool) {
+func (ss *SessionStore) GetSession(sid string) (*session, bool) {
 	ss.RLock()
 	s, ok := ss.sessions[sid]
 	ss.RUnlock()
@@ -77,10 +77,31 @@ func (ss *SessionStore) Get(sid string) (*session, bool) {
 	return s, ok
 }
 
-func (ss *SessionStore) Delete(sid string) {
+func (ss *SessionStore) DeleteSession(sid string) {
 	ss.Lock()
 	delete(ss.sessions, sid)
 	ss.Unlock()
+}
+
+func setSessionCookie(c echo.Context, sid string, expiresAt time.Time) {
+	sc := new(http.Cookie)
+	sc.Name = config.SessionCookieName
+	sc.Value = sid
+	sc.Path = "/"
+	sc.HttpOnly = true
+	sc.Secure = true  // Set to false for local development, better solution needed
+	sc.SameSite = http.SameSiteLaxMode
+	sc.Expires = expiresAt
+	c.SetCookie(sc)
+}
+
+func LoginUser(c echo.Context, ss *SessionStore, userAccountID int64) error {
+	sid := ss.CreateSession(userAccountID)	
+
+	setSessionCookie(c, sid, time.Now().Add(config.SessionExpirationTime))
+
+	c.Response().Header().Set("HX-Redirect", "/")
+	return c.NoContent(http.StatusOK)
 }
 
 func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
@@ -91,22 +112,24 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			cookie, err := c.Cookie(config.SessionCookieName)
+			sc, err := c.Cookie(config.SessionCookieName)
 			if err != nil {
 				return setNotLoggedIn()
 			}
-			sid := cookie.Value
+			sid := sc.Value
 
-			s, ok := ss.Get(sid)
+			s, ok := ss.GetSession(sid)
 			if !ok {
 				return setNotLoggedIn()
 			}
 
+
 			if s.isExpired() {
-				ss.Delete(sid)
+				ss.DeleteSession(sid)
 				return setNotLoggedIn()
 			}
 			s.touch()
+			setSessionCookie(c, sid, s.expiresAt)
 
 			c.Set(config.CTXKeySessionID, sid)
 			c.Set(config.CTXKeyIsLoggedIn, true)
@@ -154,4 +177,13 @@ func RequireSession() echo.MiddlewareFunc {
 			return c.Redirect(http.StatusSeeOther, "/login")
 		}
 	}
+}
+
+func LogoutUser(c echo.Context, ss *SessionStore) error {
+	ss.DeleteSession(GetSessionID(c))	
+
+	setSessionCookie(c, "", time.Unix(0, 0))
+
+	c.Response().Header().Set("HX-Redirect", "/login")
+	return c.NoContent(http.StatusOK)
 }
