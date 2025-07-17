@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS user_profiles (
 	name TEXT NOT NULL
 );`
 
-func (db *DB) CreateUserProfile(name string) (int64, error) {
-	res, err := db.Exec(`INSERT INTO user_profiles (name) VALUES (?)`, name)
+func (db *DB) CreateUserProfile(exec execer, name string) (int64, error) {
+	res, err := exec.Exec(`INSERT INTO user_profiles (name) VALUES (?)`, name)
 	if err != nil {
 		return 0, err
 	}

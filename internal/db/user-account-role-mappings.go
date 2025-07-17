@@ -12,8 +12,8 @@ CREATE TABLE IF NOT EXISTS user_account_role_mappings (
 	FOREIGN KEY (user_account_id) REFERENCES user_accounts(id) ON DELETE CASCADE
 );`
 
-func (db *DB) CreateUserAccountRoleMapping(userAccountID int64, userAccountRole roles.UserAccountRole) (int64, error) {
-	res, err := db.Exec(
+func (db *DB) CreateUserAccountRoleMapping(exec execer, userAccountID int64, userAccountRole roles.UserAccountRole) (int64, error) {
+	res, err := exec.Exec(
 		`INSERT INTO user_account_role_mappings (user_account_id, user_account_role) VALUES (?, ?)`,
 		userAccountID,
 		string(userAccountRole),
@@ -32,8 +32,8 @@ func (db *DB) CreateUserAccountRoleMapping(userAccountID int64, userAccountRole 
 	return id, err
 }
 
-func (db *DB) ReadUserAccountRoles(userAccountID int64) ([]roles.UserAccountRole, error) {
-	rows, err := db.Query(`
+func (db *DB) ReadUserAccountRoles(q queryer, userAccountID int64) ([]roles.UserAccountRole, error) {
+	rows, err := q.Query(`
 		SELECT user_account_role
 		FROM user_account_role_mappings
 		WHERE user_account_id = ?`, userAccountID)

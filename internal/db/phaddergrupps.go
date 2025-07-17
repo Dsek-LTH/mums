@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS phaddergrupps (
 	swish_recipient_number TEXT DEFAULT NULL
 );`
 
-func (db *DB) NewPhaddergrupp(name string) (int64, error) {
-	res, err := db.Exec(
+func (db *DB) CreatePhaddergrupp(exec execer, name string) (int64, error) {
+	res, err := exec.Exec(
 		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_nolla, mums_price_phadder, mums_currency) VALUES (?, ?, ?, ?, ?)`,
 		name,
 		config.DefaultPrimaryPhaddergruppColor,

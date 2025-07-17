@@ -1,16 +1,16 @@
 package db
 
-type DBEventType int64
+type DBEventType string
 
 const (
-    DBCreate DBEventType = iota
-    DBRead
-    DBUpdate
-    DBDelete
+    DBCreate DBEventType = "create"
+    DBRead DBEventType = "read"
+    DBUpdate DBEventType = "update"
+    DBDelete DBEventType = "delete"
 )
 
 type DBEvent struct {
     Table string
-    Verb DBEventType
+    Type DBEventType
     Data any
 }

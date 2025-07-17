@@ -3,14 +3,14 @@ package db
 const SchemaUserAccounts = `
 CREATE TABLE IF NOT EXISTS user_accounts (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
-	user_credentials_id INTEGER NOT NULL,
-	user_profile_id INTEGER NOT NULL,
+	user_credentials_id INTEGER NOT NULL UNIQUE,
+	user_profile_id INTEGER NOT NULL UNIQUE,
 	FOREIGN KEY (user_credentials_id) REFERENCES user_credentials(id) ON DELETE CASCADE,
 	FOREIGN KEY (user_profile_id) REFERENCES user_profiles(id) ON DELETE CASCADE
 );`
 
-func (db *DB) CreateUserAccount(userCredentialsID, userProfileID int64) (int64, error) {
-	res, err := db.Exec(
+func (db *DB) CreateUserAccount(exec execer, userCredentialsID, userProfileID int64) (int64, error) {
+	res, err := exec.Exec(
 		`INSERT INTO user_accounts (user_credentials_id, user_profile_id) VALUES (?, ?)`,
 		userCredentialsID,
 		userProfileID,
@@ -26,4 +26,24 @@ func (db *DB) CreateUserAccount(userCredentialsID, userProfileID int64) (int64, 
 	})
 
 	return res.LastInsertId()
+}
+
+func (db *DB) ReadUserAccountIDByUserCredentialsID(q queryer, userCredentialsID int64) (int64, error) {
+	row := q.QueryRow(
+		`SELECT id FROM user_accounts WHERE user_credentials_id = ?`,
+		userCredentialsID,
+	)
+
+	var userAccountID int64
+	if err := row.Scan(&userAccountID); err != nil {
+		return 0, err
+	}
+
+	db.Emit(DBEvent{
+		"user_accounts",
+		DBRead,
+		userAccountID,
+	})
+
+	return userAccountID, nil
 }

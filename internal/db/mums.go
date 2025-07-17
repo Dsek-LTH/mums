@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS mums (
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id)
 );`
 
-func (db *DB) CreateMums(userAccountID, phaddergruppID int64, mumsType MumsType) (int64, error) {
-	res, err := db.Exec(
+func (db *DB) CreateMums(exec execer, userAccountID, phaddergruppID int64, mumsType MumsType) (int64, error) {
+	res, err := exec.Exec(
 		`INSERT INTO mums (user_account_id, phaddergrupp_id, mums_type) VALUES (?, ?, ?)`,
 		userAccountID,
 		phaddergruppID,

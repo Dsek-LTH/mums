@@ -1,8 +1,6 @@
 package db
 
 import (
-	"database/sql"
-
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
 
@@ -17,8 +15,8 @@ CREATE TABLE IF NOT EXISTS phaddergrupp_mappings (
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id) ON DELETE CASCADE
 );`
 
-func (db *DB) CreatePhaddergruppMapping(userAccountID, phaddergruppID int64, phaddergruppRole roles.PhaddergruppRole) error {
-	_, err := db.Exec(
+func (db *DB) CreatePhaddergruppMapping(exec execer, userAccountID, phaddergruppID int64, phaddergruppRole roles.PhaddergruppRole) error {
+	_, err := exec.Exec(
 		`INSERT INTO phaddergrupp_mappings (user_account_id, phaddergrupp_id, phaddergrupp_role) VALUES (?, ?, ?)`,
 		userAccountID,
 		phaddergruppID,
@@ -34,30 +32,18 @@ func (db *DB) CreatePhaddergruppMapping(userAccountID, phaddergruppID int64, pha
 	return err
 }
 
-func (db *DB) ReadPhaddergruppRole(userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
-	rows, err := db.Query(`
+func (db *DB) ReadPhaddergruppRole(q queryer, userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
+	row := q.QueryRow(`
 		SELECT phaddergrupp_role
 		FROM phaddergrupp_mappings
 		WHERE user_account_id = ? AND phaddergrupp_id = ?`,
 		userAccountID, phaddergruppID)
-	if err != nil {
-		return "", err
-	}
-	defer rows.Close()
-
-	if !rows.Next() {
-		return "", sql.ErrNoRows
-	}
 
 	var phaddergruppRole roles.PhaddergruppRole
-	if err := rows.Scan(&phaddergruppRole); err != nil {
+	if err := row.Scan(&phaddergruppRole); err != nil {
 		return "", err
 	}
 
-	if err := rows.Err(); err != nil {
-		return "", err
-	}
-	
 	db.Emit(DBEvent{
 		"phaddergrupp_mappings",
 		DBRead,
