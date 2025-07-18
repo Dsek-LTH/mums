@@ -4,29 +4,39 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>{{ block "title" . }}{{ end }}</title>
+        <title>{{ block "title" . }}mums{{ end }}</title>
         <script
             src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.6/dist/htmx.min.js"
             integrity="sha384-Akqfrbj/HpNVo8k11SXBb6TlBWmXXlYQrCSqEWmyKJe+hDm3Z/B2WVG4smwBkRVm"
             crossorigin="anonymous">
         </script>
         <script src="https://cdn.tailwindcss.com"></script>
+        {{ if .AllowedErrorCodes }}
+        <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", (_) => {
+                document.body.addEventListener("htmx:beforeSwap", function(event) {
+                    const status = event.detail.xhr.status;
+                    if ({{ range $i, $code := .AllowedErrorCodes }} {{ if $i }} || {{ end }} status == {{ $code }} {{ end }}) {
+                        event.detail.shouldSwap = true;
+                        event.detail.isError = false;
+                    }
+                });
+            });
+        </script> 
+        {{ end }}
         <link rel="icon" href="/static/icons/favicon.ico" type="image/x-icon"/>
         <link rel="stylesheet" href="/static/css/fonts.css"/>
         <link rel="stylesheet" href="/static/css/colors.css"/>
     </head>
     <body class="min-h-screen flex flex-col font-iosevka">
         <header role="banner">
-            {{ block "header" . }}
-            {{ end }}
+            {{ template "header" . }}
         </header>
         <main role="main" class="flex-grow flex items-center justify-center">
-            {{ block "content" . }}
-            {{ end }}
+            {{ template "content" . }}
         </main>
         <footer role="contentinfo">
-            {{ block "footer" . }}
-            {{ end }}
+            {{ template "footer" . }}
         </footer>
     </body>
 </html>

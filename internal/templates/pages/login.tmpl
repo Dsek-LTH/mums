@@ -1,0 +1,46 @@
+{{ define "login" }}
+{{ template "base" . }}
+{{ end }}
+
+{{ block "title" . }}mums | Login{{ end }}
+
+{{ define "content" }}
+<div class="flex flex-col mb-16">
+    <p class="text-center text-2xl mb-12">
+      <img src="/static/logos/mums.svg" alt="Logo" class="mx-auto w-24 h-24 mb-4" />
+      Feelin' thirsty?
+    </p>
+
+    <form hx-post="/login" hx-target="#form-fields" hx-target-401="#form-fields" hx-swap="outerHTML" class="max-w-md mx-auto px-4">
+        {{ template "form-fields" . }}
+        {{ template "form-submit-button" dict "Text" "Login" }}
+        <p class="mt-6 text-center text-sm text-gray-600">
+            Not have an account yet?
+            <a href="/register" class="text-indigo-600 hover:underline">Register</a>
+        </p>
+    </form>
+</div>
+{{ end }}
+
+{{ define "form-fields" }}
+<div id="form-fields">
+    {{ template "form-input-field" dict
+        "ID" "email-field"
+        "Label" "Email address"
+        "Name" "email"
+        "Type" "email"
+        "Autocomplete" "email"
+        "Required" true
+        "Value" .Email
+    }}
+    {{ template "form-input-field" dict
+        "ID" "password-field"
+        "Label" "Password"
+        "Name" "password"
+        "Type" "password"
+        "Autocomplete" "current-password"
+        "Required" true
+    }}
+    {{ template "form-errors" dict "Errors" .Errors.Generic }}
+</div>
+{{ end }}
