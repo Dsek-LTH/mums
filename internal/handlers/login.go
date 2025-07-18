@@ -12,15 +12,15 @@ import (
 )
 
 type loginPageData struct {
-	IsLoggedIn bool
+	IsLoggedIn        bool
 	AllowedErrorCodes []int
-	Errors     map[string][]string
-	Email      string
+	Errors            map[string][]string
+	Email             string
 }
 
 func GetLogin(c echo.Context) error {
 	pageData := loginPageData{
-		IsLoggedIn: false,
+		IsLoggedIn:        false,
 		AllowedErrorCodes: []int{http.StatusUnauthorized, http.StatusInternalServerError},
 	}
 	return c.Render(http.StatusOK, "login", pageData)

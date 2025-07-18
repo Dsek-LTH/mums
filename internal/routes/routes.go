@@ -30,9 +30,9 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 
 	phaddergrupp := protected.Group("/phaddergrupp", auth.PhaddergruppRBACMiddleware())
 
-	phaddergrupp.GET("/:phaddergrupp_id", handlers.GetPhaddergrupp, auth.RequirePhaddergruppRole(roles.Nolla, roles.Phadder))
-	phaddergrupp.POST("/:phaddergrupp_id", handlers.PostPhaddergrupp, auth.RequirePhaddergruppRole(roles.Phadder))
-	phaddergrupp.GET("/:phaddergrupp_id/settings", handlers.GetPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
-	phaddergrupp.POST("/:phaddergrupp_id/settings", handlers.PostPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
-	phaddergrupp.GET("/:phaddergrupp_id/event_stream", handlers.StreamPhaddergruppEvents, auth.RequirePhaddergruppRole(roles.Nolla, roles.Phadder))
+	phaddergrupp.GET("/:phaddergrupp-id", handlers.GetPhaddergrupp, auth.RequirePhaddergruppRole(roles.N0lla, roles.Phadder))
+	phaddergrupp.POST("/:phaddergrupp-id", handlers.PostPhaddergrupp, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.GET("/:phaddergrupp-id/settings", handlers.GetPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.POST("/:phaddergrupp-id/settings", handlers.PostPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.GET("/:phaddergrupp-id/event-stream", handlers.StreamPhaddergruppEvents, auth.RequirePhaddergruppRole(roles.N0lla, roles.Phadder))
 }

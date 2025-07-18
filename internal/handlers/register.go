@@ -21,7 +21,7 @@ type registerPageData struct {
 
 func GetRegister(c echo.Context) error {
 	pageData := registerPageData{
-		IsLoggedIn: auth.GetIsLoggedIn(c),
+		IsLoggedIn:        auth.GetIsLoggedIn(c),
 		AllowedErrorCodes: []int{http.StatusInternalServerError, http.StatusConflict, http.StatusBadRequest},
 	}
 	return c.Render(http.StatusOK, "register", pageData)
@@ -62,15 +62,15 @@ func PostRegister(ss *auth.SessionStore) echo.HandlerFunc {
 			return unexpectedError()
 		}
 		if emailExists {
-			return fieldError(http.StatusConflict, "Email", []string{"Account with email already exists."}) 
+			return fieldError(http.StatusConflict, "Email", []string{"Account with email already exists."})
 		}
 
 		if userPassword != userConfirmPassword {
-			return fieldError(http.StatusBadRequest, "PasswordConfirm", []string{"Passwords do not match."}) 
-		}	
+			return fieldError(http.StatusBadRequest, "PasswordConfirm", []string{"Passwords do not match."})
+		}
 		hashword, err := password.HashSecure(userPassword)
 		if err == bcrypt.ErrPasswordTooLong {
-			return fieldError(http.StatusBadRequest, "PasswordConfirm", []string{"Passwords length exceeds 72."}) 
+			return fieldError(http.StatusBadRequest, "PasswordConfirm", []string{"Passwords length exceeds 72."})
 		}
 		if err != nil {
 			c.Logger().Errorf("Password could not be hashed: %v", err)
