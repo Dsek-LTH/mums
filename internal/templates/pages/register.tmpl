@@ -5,18 +5,8 @@
 {{ block "title" . }}mums | Login{{ end }}
 
 {{ define "content" }}
-<script type="text/javascript">
-    document.addEventListener("DOMContentLoaded", (_) => {
-        document.body.addEventListener("htmx:beforeSwap", function(event) {
-            const status = event.detail.xhr.status;
-            if (status == 400 || status == 409 || status == 500) {
-                event.detail.shouldSwap = true;
-                event.detail.isError = false;
-            }
-        });
-    });
-</script> 
 <div class="flex flex-col">
+
     <p class="text-center text-2xl my-12">
       Welcome to mums!
     </p>
@@ -29,6 +19,7 @@
             <a href="/login" class="text-indigo-600 hover:underline">Login</a>
         </p>
     </form>
+
 </div>
 {{ end }}
 
