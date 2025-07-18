@@ -72,13 +72,13 @@ func RequireUserAccountRole(allowedUserAccountRoles ...roles.UserAccountRole) ec
 func PhaddergruppRBACMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			phaddergruppIDString := c.Param("phaddergrupp_id")
+			phaddergruppIDString := c.Param("phaddergrupp-id")
 			if phaddergruppIDString == "" {
-				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Missing phaddergrupp_id parameter")
+				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Missing phaddergrupp-id parameter")
 			}
 			phaddergruppID, err := strconv.ParseInt(phaddergruppIDString, 10, 64)
 			if err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Invalid phaddergrupp_id")
+				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Invalid phaddergrupp-id")
 			}
 			database := db.GetDB(c)
 			phaddergruppRole, err := database.ReadPhaddergruppRole(database, GetUserAccountID(c), phaddergruppID)
