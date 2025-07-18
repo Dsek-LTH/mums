@@ -16,7 +16,6 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 	e.GET("/register", handlers.GetRegister)
 	e.POST("/register", handlers.PostRegister(ss))
 	e.GET("/about", handlers.GetAbout)
-	e.GET("/work-in-progress", handlers.GetWorkInProgress)
 
 	protected := e.Group("")
 	protected.Use(auth.RequireSession())
