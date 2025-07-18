@@ -3,12 +3,14 @@ package templates
 import (
 	"embed"
 	"errors"
+	"fmt"
 	"html/template"
 	"io"
 	"io/fs"
 	"path/filepath"
 	"strings"
 
+	"github.com/Dsek-LTH/mums/internal/config"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,45 +21,72 @@ type TemplateRenderer struct {
 	templates map[string]*template.Template
 }
 
-func (tR *TemplateRenderer) Render(w io.Writer, name string, data any, _ echo.Context) error {
-	tmpl, ok := tR.templates[name]
-	if !ok {
-		return errors.New("template not found")
+func dict(values ...any) (map[string]any, error) {
+	if len(values)%2 != 0 {
+		return nil, errors.New("dict requires an even number of arguments")
 	}
-
-	return tmpl.ExecuteTemplate(w, "base", data)
+	dict := make(map[string]any, len(values)/2)
+	for i := 0; i < len(values); i += 2 {
+		key, ok := values[i].(string)
+		if !ok {
+			return nil, errors.New("dict keys must be strings")
+		}
+		dict[key] = values[i+1]
+	}
+	return dict, nil
 }
 
 func NewTemplateRenderer() *TemplateRenderer {
+	funcMap := template.FuncMap{
+		"dict": dict,
+	}
 	templates := make(map[string]*template.Template)
 
-	base, err := template.ParseFS(tmplFS, "layouts/base.tmpl")
+	base, err := template.New("base").Funcs(funcMap).ParseFS(tmplFS, "layouts/*.tmpl", "components/*.tmpl")
 	if err != nil {
-		panic("failed to parse base layout: " + err.Error())
+		panic("failed to parse base layouts and partials: " + err.Error())
 	}
 
-	viewFiles, err := fs.Glob(tmplFS, "views/*.tmpl")
+	pageFiles, err := fs.Glob(tmplFS, "pages/*.tmpl")
 	if err != nil {
-		panic("failed to glob view templates: " + err.Error())
+		panic("failed to glob page template files: " + err.Error())
 	}
 
-	for _, viewFile := range viewFiles {
-		tmplName := strings.TrimSuffix(filepath.Base(viewFile), ".tmpl")
+	for _, pageFile := range pageFiles {
+		tmplName := strings.TrimSuffix(filepath.Base(pageFile), ".tmpl")
 
 		baseCopy, err := base.Clone()
 		if err != nil {
-			panic("failed to clone base template: " + err.Error())
+			panic("failed to clone base template for " + tmplName + ": " + err.Error())
 		}
 
-		tmpl, err := baseCopy.ParseFS(tmplFS, viewFile, "partials/*.tmpl")
+		tmpl, err := baseCopy.ParseFS(tmplFS, pageFile)
 		if err != nil {
-			panic("failed to parse view template: " + err.Error())
+			panic("failed to parse page template " + pageFile + ": " + err.Error())
 		}
 
 		templates[tmplName] = tmpl
 	}
 
 	return &TemplateRenderer{templates}
+}
+
+// name format: pageName or pageName#blockName
+func (tr *TemplateRenderer) Render(w io.Writer, name string, data any, c echo.Context) error {
+	pageName, blockName, isBlockRender := strings.Cut(name, config.TemplateBlockRenderSeparator)
+	if !isBlockRender {
+		blockName = pageName
+	}
+	if blockName == "" {
+		return fmt.Errorf("error rendering template '%s': block name cannot be empty", name)
+	}
+
+	tmpl, ok := tr.templates[pageName]
+	if !ok {
+		return fmt.Errorf("template with pageName '%s' not found", pageName)
+	}
+
+	return tmpl.ExecuteTemplate(w, blockName, data)
 }
 
 func LoadTemplates(e *echo.Echo) {
