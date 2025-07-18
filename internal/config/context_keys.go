@@ -3,9 +3,9 @@ package config
 const (
 	CTXKeyDB = "db"
 
-	CTXKeySessionID = "sessionID"
+	CTXKeySessionID     = "sessionID"
 	CTXKeyUserAccountID = "userAccountID"
-	CTXKeyIsLoggedIn = "isLoggedIn"
+	CTXKeyIsLoggedIn    = "isLoggedIn"
 
 	CTXKeyUserAccountRoles = "userAccountRoles"
 	CTXKeyIsSuperAdmin     = "isSuperAdmin"

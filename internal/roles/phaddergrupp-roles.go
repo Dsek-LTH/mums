@@ -3,6 +3,6 @@ package roles
 type PhaddergruppRole string
 
 const (
-	Nolla   PhaddergruppRole = "nolla"
+	N0lla   PhaddergruppRole = "n0lla"
 	Phadder PhaddergruppRole = "phadder"
 )

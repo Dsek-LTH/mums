@@ -1,5 +1,5 @@
 package config
 
 const (
-    ServerAddress = ":11337"
+	ServerAddress = ":11337"
 )

@@ -89,14 +89,14 @@ func setSessionCookie(c echo.Context, sid string, expiresAt time.Time) {
 	sc.Value = sid
 	sc.Path = "/"
 	sc.HttpOnly = true
-	sc.Secure = true  // Set to false for local development, better solution needed
+	sc.Secure = true // Set to false for local development, better solution needed
 	sc.SameSite = http.SameSiteLaxMode
 	sc.Expires = expiresAt
 	c.SetCookie(sc)
 }
 
 func LoginUser(c echo.Context, ss *SessionStore, userAccountID int64) error {
-	sid := ss.CreateSession(userAccountID)	
+	sid := ss.CreateSession(userAccountID)
 
 	setSessionCookie(c, sid, time.Now().Add(config.SessionExpirationTime))
 
@@ -108,7 +108,7 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			setNotLoggedIn := func() error {
-			    c.Set(config.CTXKeyIsLoggedIn, false)
+				c.Set(config.CTXKeyIsLoggedIn, false)
 				return next(c)
 			}
 
@@ -122,7 +122,6 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 			if !ok {
 				return setNotLoggedIn()
 			}
-
 
 			if s.isExpired() {
 				ss.DeleteSession(sid)
@@ -180,7 +179,7 @@ func RequireSession() echo.MiddlewareFunc {
 }
 
 func LogoutUser(c echo.Context, ss *SessionStore) error {
-	ss.DeleteSession(GetSessionID(c))	
+	ss.DeleteSession(GetSessionID(c))
 
 	setSessionCookie(c, "", time.Unix(0, 0))
 
