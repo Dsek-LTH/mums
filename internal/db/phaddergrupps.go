@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS phaddergrupps (
 
 func (db *DB) CreatePhaddergrupp(exec execer, name string) (int64, error) {
 	res, err := exec.Exec(
-		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_n0lla, mums_price_phadder, mums_currency) VALUES (?, ?, ?, ?, ?)`,
+		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_n0lla, mums_price_phadder, mums_currency) VALUES (?, ?, ?, ?, ?, ?)`,
 		name,
 		config.DefaultPrimaryPhaddergruppColor,
 		config.DefaultSecondaryPhaddergruppColor,
