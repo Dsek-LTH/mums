@@ -47,3 +47,26 @@ func (db *DB) ReadUserAccountIDByUserCredentialsID(q queryer, userCredentialsID 
 
 	return userAccountID, nil
 }
+
+func (db *DB) ReadUserProfileNameByUserAccountID(q queryer, userAccountID int64) (string, error) {
+	row := q.QueryRow(`
+		SELECT p.name
+		FROM user_profiles AS p
+		JOIN user_accounts AS a ON p.id = a.user_profile_id
+		WHERE a.id = ?`,
+		userAccountID,
+	)
+
+	var name string
+	if err := row.Scan(&name); err != nil {
+		return "", err
+	}
+
+	db.Emit(DBEvent{
+		"user_profiles",
+		DBRead,
+		nil,
+	})
+
+	return name, nil
+}
