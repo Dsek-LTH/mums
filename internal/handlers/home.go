@@ -7,27 +7,25 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/Dsek-LTH/mums/internal/auth"
+	"github.com/Dsek-LTH/mums/internal/context"
 	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
 
 type homePageData struct {
-	IsLoggedIn                bool
-	AllowedErrorCodes         []int
-	UserProfileName           string
-	UserPhaddergruppSummaries []db.UserPhaddergruppSummary
-	PhaddergruppName          string
-	Errors                    map[string][]string
+	IsLoggedIn                            bool
+	AllowedErrorCodes                     []int
+	UserProfileName                       string
+	UserPhaddergruppSummaries             []db.UserPhaddergruppSummary
+	HasMoreThanOneUserPhaddergruppSummary bool
+	PhaddergruppName                      string
+	Errors                                map[string][]string
 }
 
 func GetHome(c echo.Context) error {
 	database := db.GetDB(c)
 	userAccountID := auth.GetUserAccountID(c)
-	userProfileName, err := database.ReadUserProfileNameByUserAccountID(database, userAccountID)
-	if err != nil {
-		c.Logger().Errorf("Database error during user profile name read for user %s: %v", userAccountID, err)
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
-	}
+	userProfile := context.GetUserProfile(c)
 
 	userPhaddergruppSummaries, err := database.ReadUserPhaddergruppSummariesByUserAccountID(database, userAccountID)
 	if err != nil {
@@ -38,8 +36,9 @@ func GetHome(c echo.Context) error {
 	pageData := homePageData{
 		IsLoggedIn: auth.GetIsLoggedIn(c),
 		AllowedErrorCodes: []int{http.StatusInternalServerError},
-		UserProfileName: userProfileName,
+		UserProfileName: userProfile.Name,
 		UserPhaddergruppSummaries: userPhaddergruppSummaries,
+		HasMoreThanOneUserPhaddergruppSummary: len(userPhaddergruppSummaries) > 1,
 	}
 	return c.Render(http.StatusOK, "home", pageData)
 }

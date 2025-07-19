@@ -48,7 +48,7 @@ func (db *DB) ReadUserAccountIDByUserCredentialsID(q queryer, userCredentialsID 
 	return userAccountID, nil
 }
 
-func (db *DB) ReadUserProfileNameByUserAccountID(q queryer, userAccountID int64) (string, error) {
+func (db *DB) ReadUserProfileByUserAccountID(q queryer, userAccountID int64) (UserProfileData, error) {
 	row := q.QueryRow(`
 		SELECT p.name
 		FROM user_profiles AS p
@@ -57,9 +57,11 @@ func (db *DB) ReadUserProfileNameByUserAccountID(q queryer, userAccountID int64)
 		userAccountID,
 	)
 
-	var name string
-	if err := row.Scan(&name); err != nil {
-		return "", err
+	var upd UserProfileData
+	if err := row.Scan(
+		&upd.Name,
+	); err != nil {
+		return UserProfileData{}, err
 	}
 
 	db.Emit(DBEvent{
@@ -68,5 +70,5 @@ func (db *DB) ReadUserProfileNameByUserAccountID(q queryer, userAccountID int64)
 		nil,
 	})
 
-	return name, nil
+	return upd, nil
 }

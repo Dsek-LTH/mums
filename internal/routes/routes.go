@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/Dsek-LTH/mums/internal/auth"
+	"github.com/Dsek-LTH/mums/internal/context"
 	"github.com/Dsek-LTH/mums/internal/handlers"
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
@@ -17,9 +18,12 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 	e.POST("/register", handlers.PostRegister(ss))
 	e.GET("/about", handlers.GetAbout)
 
-	protected := e.Group("")
-	protected.Use(auth.RequireSession())
-	protected.Use(auth.UserAccountRBACMiddleware())
+	protected := e.Group(
+		"",
+		auth.RequireSession(),
+		auth.UserAccountRBACMiddleware(),
+		context.InjectUserProfile(),
+	)
 
 	protected.GET("/", handlers.GetHome)
 	protected.POST("/", handlers.PostHome)
@@ -28,11 +32,15 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 	protected.POST("/admin", handlers.PostAdmin, auth.RequireUserAccountRole(roles.Admin))
 	protected.GET("/invite", handlers.GetInvite)
 
-	phaddergrupp := protected.Group("/phaddergrupp", auth.PhaddergruppRBACMiddleware())
+	phaddergrupp := protected.Group(
+		"/phaddergrupp",
+		auth.PhaddergruppRBACMiddleware(),
+		context.InjectPhaddergrupp(),
+	)
 
-	phaddergrupp.GET("/:phaddergrupp-id", handlers.GetPhaddergrupp, auth.RequirePhaddergruppRole(roles.N0lla, roles.Phadder))
-	phaddergrupp.POST("/:phaddergrupp-id", handlers.PostPhaddergrupp, auth.RequirePhaddergruppRole(roles.Phadder))
-	phaddergrupp.GET("/:phaddergrupp-id/settings", handlers.GetPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
-	phaddergrupp.POST("/:phaddergrupp-id/settings", handlers.PostPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
-	phaddergrupp.GET("/:phaddergrupp-id/event-stream", handlers.StreamPhaddergruppEvents, auth.RequirePhaddergruppRole(roles.N0lla, roles.Phadder))
+	phaddergrupp.GET("/:id", handlers.GetPhaddergrupp, auth.RequirePhaddergruppRole(roles.N0lla, roles.Phadder))
+	phaddergrupp.POST("/:id", handlers.PostPhaddergrupp, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.GET("/:id/settings", handlers.GetPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.POST("/:id/settings", handlers.PostPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.GET("/:id/event-stream", handlers.StreamPhaddergruppEvents, auth.RequirePhaddergruppRole(roles.N0lla, roles.Phadder))
 }

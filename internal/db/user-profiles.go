@@ -1,5 +1,9 @@
 package db
 
+type UserProfileData struct {
+	Name string
+}
+
 const SchemaUserProfiles = `
 CREATE TABLE IF NOT EXISTS user_profiles (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,

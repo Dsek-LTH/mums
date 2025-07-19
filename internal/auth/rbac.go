@@ -71,7 +71,7 @@ func RequireUserAccountRole(allowedUserAccountRoles ...roles.UserAccountRole) ec
 func PhaddergruppRBACMiddleware() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
-			phaddergruppIDString := c.Param("phaddergrupp-id")
+			phaddergruppIDString := c.Param("id")
 			if phaddergruppIDString == "" {
 				return echo.NewHTTPError(http.StatusBadRequest, "Bad Request: Missing phaddergrupp-id parameter")
 			}
@@ -87,11 +87,22 @@ func PhaddergruppRBACMiddleware() echo.MiddlewareFunc {
 				}
 				return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
 			}
+
+			c.Set(config.CTXKeyPhaddergruppID, phaddergruppID)
 			c.Set(config.CTXKeyPhaddergruppRole, phaddergruppRole)
 
 			return next(c)
 		}
 	}
+}
+
+func GetPhaddergruppID(c echo.Context) int64 {
+	phaddergruppID, ok := c.Get(config.CTXKeyPhaddergruppID).(int64)
+	if !ok {
+		panic("config.CTXKeyPhaddergruppID is not set in context, was PhaddergruppRBACMiddleware not applied?")
+	}
+
+	return phaddergruppID
 }
 
 func GetPhaddergruppRole(c echo.Context) roles.PhaddergruppRole {
