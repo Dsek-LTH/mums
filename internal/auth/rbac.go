@@ -24,9 +24,8 @@ func UserAccountRBACMiddleware() echo.MiddlewareFunc {
 			}
 			c.Set(config.CTXKeyUserAccountRoles, userAccountRoles)
 
-			if slices.Contains(userAccountRoles, roles.SuperAdmin) {
-				c.Set(config.CTXKeyIsSuperAdmin, true)
-			}
+			isSuperAdmin := slices.Contains(userAccountRoles, roles.SuperAdmin)
+			c.Set(config.CTXKeyIsSuperAdmin, isSuperAdmin)
 
 			return next(c)
 		}
