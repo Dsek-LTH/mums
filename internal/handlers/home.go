@@ -69,8 +69,6 @@ func PostHome(c echo.Context) error {
 		return unexpectedFormError()	
 	}
 
-	url := fmt.Sprintf("/phaddergrupp/%d", phaddergruppID)
-	fmt.Println("AJSDHKAHSKDHASKD", url, "<<<<<----")
 	c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/phaddergrupp/%d", phaddergruppID))
 	return c.NoContent(http.StatusOK)
 }
