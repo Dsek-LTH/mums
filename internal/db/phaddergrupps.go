@@ -7,6 +7,7 @@ import (
 const SchemaPhaddergrupps = `
 CREATE TABLE IF NOT EXISTS phaddergrupps (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	name TEXT NOT NULL,
 	icon_file_path TEXT DEFAULT NULL,
 	primary_color TEXT NOT NULL,

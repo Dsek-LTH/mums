@@ -10,9 +10,9 @@ const (
 const SchemaMums = `
 CREATE TABLE IF NOT EXISTS mums (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
 	user_account_id INTEGER NOT NULL,
 	phaddergrupp_id INTEGER NOT NULL,
-	timestamp TEXT NOT NULL DEFAULT (datetime('now')),
 	mums_type TEXT NOT NULL,
     FOREIGN KEY (user_account_id) REFERENCES user_accounts(id),
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id)

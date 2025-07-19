@@ -1,6 +1,8 @@
 package db
 
 import (
+	"database/sql"
+
 	"github.com/Dsek-LTH/mums/internal/roles"
 )
 
@@ -51,4 +53,82 @@ func (db *DB) ReadPhaddergruppRole(q queryer, userAccountID, phaddergruppID int6
 	})
 
 	return phaddergruppRole, nil
+}
+
+type UserPhaddergruppSummary struct {
+	ID               int64
+	Name             string
+	LogoPath         sql.NullString
+	PrimaryColor     string
+	SecondaryColor   string
+	PhadderCount     int 
+	N0llaCount       int 
+	PhaddergruppRole roles.PhaddergruppRole
+	MumsAvailable    int 
+}
+
+func (db *DB) ReadUserPhaddergruppSummariesByUserAccountID(q queryer, userAccountID int64) ([]UserPhaddergruppSummary, error) {
+	const sql = `
+		WITH GroupCounts AS (
+			SELECT
+				phaddergrupp_id,
+		        SUM(CASE WHEN phaddergrupp_role = 'phadder' THEN 1 ELSE 0 END) AS pc,
+		        SUM(CASE WHEN phaddergrupp_role = 'n0lla' THEN 1 ELSE 0 END) AS nc
+			FROM
+				phaddergrupp_mappings
+			GROUP BY
+				phaddergrupp_id
+		)
+		SELECT
+			pg.id,
+			pg.name,
+			pg.icon_file_path,
+			pg.primary_color,
+			pg.secondary_color,
+			gc.pc,
+			gc.nc,
+		    pm.phaddergrupp_role,
+			pm.mums_available
+		FROM
+			phaddergrupp_mappings AS pm
+		JOIN
+			phaddergrupps AS pg ON pm.phaddergrupp_id = pg.id
+		JOIN
+			GroupCounts AS gc ON pm.phaddergrupp_id = gc.phaddergrupp_id
+		WHERE
+			pm.user_account_id = ?
+		ORDER BY
+			pg.created_at DESC;
+	`
+
+	rows, err := q.Query(sql, userAccountID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var summaries []UserPhaddergruppSummary
+	for rows.Next() {
+		var s UserPhaddergruppSummary
+		if err := rows.Scan(
+			&s.ID,
+			&s.Name,
+			&s.LogoPath,
+			&s.PrimaryColor,
+			&s.SecondaryColor,
+			&s.PhadderCount,
+			&s.N0llaCount,
+			&s.PhaddergruppRole,
+			&s.MumsAvailable,
+		); err != nil {
+			return nil, err
+		}
+		summaries = append(summaries, s)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return summaries, nil
 }
