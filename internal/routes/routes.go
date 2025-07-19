@@ -22,6 +22,7 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 	protected.Use(auth.UserAccountRBACMiddleware())
 
 	protected.GET("/", handlers.GetHome)
+	protected.POST("/", handlers.PostHome)
 	protected.POST("/logout", handlers.PostLogout(ss))
 	protected.GET("/admin", handlers.GetAdmin, auth.RequireUserAccountRole(roles.Admin))
 	protected.POST("/admin", handlers.PostAdmin, auth.RequireUserAccountRole(roles.Admin))
