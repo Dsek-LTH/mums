@@ -1,5 +1,5 @@
 <div align="center">
-    <img src="/web/static/logos/mums.svg" alt="mums logo" title="mums logo" width="256">
+    <img src="/web/static/icons/mums.svg" alt="mums logo" title="mums logo" width="256">
     <h1>mums</h1>
     <h4>
         Serving beverages since 1337!

@@ -14,8 +14,8 @@ import (
 type loginPageData struct {
 	IsLoggedIn        bool
 	AllowedErrorCodes []int
-	Errors            map[string][]string
 	Email             string
+	Errors            map[string][]string
 }
 
 func GetLogin(c echo.Context) error {

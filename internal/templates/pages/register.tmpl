@@ -11,7 +11,7 @@
       Welcome to mums!
     </p>
 
-    <form hx-post="/register" hx-target="#form-fields" hx-target-401="#form-fields" hx-swap="outerHTML" class="max-w-md mx-auto px-4">
+    <form hx-post="/register" hx-target="#form-fields" hx-swap="outerHTML" class="max-w-md mx-auto px-4">
         {{ template "form-fields" . }}
         {{ template "form-submit-button" dict "Text" "Register" }}
         <p class="mt-6 text-center text-sm text-gray-600">
