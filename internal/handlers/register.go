@@ -103,6 +103,6 @@ func PostRegister(ss *auth.SessionStore) echo.HandlerFunc {
 			c.Logger().Errorf("Database error during user creation: %v", err)
 			return unexpectedError()
 		}
-		return auth.LoginUser(c, ss, userAccountID)
+		return loginUser(c, ss, userAccountID)
 	}
 }

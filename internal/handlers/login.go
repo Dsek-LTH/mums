@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"database/sql"
 	"net/http"
 
@@ -25,6 +26,27 @@ func GetLogin(c echo.Context) error {
 	}
 	return c.Render(http.StatusOK, "login", pageData)
 }
+
+func loginUser(c echo.Context, ss *auth.SessionStore, userAccountID int64) error {
+	auth.LoginUser(c, ss, userAccountID)
+
+	database := db.GetDB(c)
+
+	var redirectURL string
+	switch phaddergruppID, err := database.ReadLastCreatedPhaddergruppIDByUserAccountID(database, userAccountID); err {
+	case nil:
+		redirectURL = fmt.Sprintf("/phaddergrupp/%d", phaddergruppID)
+	case sql.ErrNoRows:
+		redirectURL = "/"
+	default:
+		c.Logger().Errorf("Database error during last created phaddergrupp read for user: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
+	}
+
+	c.Response().Header().Set("HX-Redirect", redirectURL)
+	return c.NoContent(http.StatusOK)
+}
+
 
 func PostLogin(ss *auth.SessionStore) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -61,6 +83,6 @@ func PostLogin(ss *auth.SessionStore) echo.HandlerFunc {
 			c.Logger().Errorf("CRITICAL: Credentials found (ID: %d) but no matching user account.", userCredentialsID)
 		}
 
-		return auth.LoginUser(c, ss, userAccountID)
+		return loginUser(c, ss, userAccountID)
 	}
 }

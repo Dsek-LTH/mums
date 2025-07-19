@@ -95,13 +95,10 @@ func setSessionCookie(c echo.Context, sid string, expiresAt time.Time) {
 	c.SetCookie(sc)
 }
 
-func LoginUser(c echo.Context, ss *SessionStore, userAccountID int64) error {
+func LoginUser(c echo.Context, ss *SessionStore, userAccountID int64) {
 	sid := ss.CreateSession(userAccountID)
 
 	setSessionCookie(c, sid, time.Now().Add(config.SessionExpirationTime))
-
-	c.Response().Header().Set("HX-Redirect", "/")
-	return c.NoContent(http.StatusOK)
 }
 
 func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
@@ -178,11 +175,8 @@ func RequireSession() echo.MiddlewareFunc {
 	}
 }
 
-func LogoutUser(c echo.Context, ss *SessionStore) error {
+func LogoutUser(c echo.Context, ss *SessionStore) {
 	ss.DeleteSession(GetSessionID(c))
 
 	setSessionCookie(c, "", time.Unix(0, 0))
-
-	c.Response().Header().Set("HX-Redirect", "/login")
-	return c.NoContent(http.StatusOK)
 }

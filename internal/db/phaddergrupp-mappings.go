@@ -82,7 +82,7 @@ func (db *DB) ReadUserPhaddergruppSummariesByUserAccountID(q queryer, userAccoun
 		SELECT
 			pg.id,
 			pg.name,
-			pg.icon_file_path,
+			pg.logo_file_path,
 			pg.primary_color,
 			pg.secondary_color,
 			gc.pc,
@@ -130,5 +130,46 @@ func (db *DB) ReadUserPhaddergruppSummariesByUserAccountID(q queryer, userAccoun
 		return nil, err
 	}
 
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBRead,
+		nil,
+	})
+	db.Emit(DBEvent{
+		"phaddergrupps",
+		DBRead,
+		nil,
+	})
+
 	return summaries, nil
+}
+
+func (db *DB) ReadLastCreatedPhaddergruppIDByUserAccountID(q queryer, userAccountID int64) (int64, error) {
+	const sql =`
+		SELECT
+			p.id
+		FROM
+			phaddergrupp_mappings AS pm
+		JOIN
+			phaddergrupps AS p ON p.id = pm.phaddergrupp_id
+		WHERE
+			pm.user_account_id = ?
+		ORDER BY
+			p.created_at DESC;
+	`
+
+	row := q.QueryRow(sql, userAccountID)
+
+	var phaddergruppID int64
+	if err := row.Scan(&phaddergruppID); err != nil {
+		return 0, err
+	}
+
+	db.Emit(DBEvent{
+		"phaddergrupps",
+		DBRead,
+		nil,
+	})
+
+	return phaddergruppID, nil
 }
