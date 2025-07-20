@@ -13,6 +13,7 @@ import (
 )
 
 type session struct {
+	sync.RWMutex
 	userAccountID int64
 	expiresAt     time.Time
 }
@@ -24,10 +25,14 @@ func newSession(userAccountID int64) *session {
 }
 
 func (s *session) isExpired() bool {
+	s.RLock()
+	defer s.RUnlock()
 	return s.expiresAt.Before(time.Now())
 }
 
 func (s *session) touch() {
+	s.Lock()
+	defer s.Unlock()
 	s.expiresAt = time.Now().Add(config.SessionExpirationTime)
 }
 
