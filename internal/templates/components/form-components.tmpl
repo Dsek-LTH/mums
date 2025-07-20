@@ -1,13 +1,17 @@
 {{ define "form-input-field" }}
 <div class="mb-6">
-    <label for="{{ .ID }}" class="block text-sm font-medium text-gray-700 mb-1">
-        {{ .Label }}
+    {{ if or .Label .InfoLabel }}
+    <label for="{{ .ID }}" class="block font-medium mb-1">
+        {{ if .Label }} <p class="text-sm text-gray-700">{{ .Label }}</p> {{ end }}
+        {{ if .InfoLabel }} <p class="text-xs text-gray-400">{{ .InfoLabel }}</p> {{ end }}
     </label>
+    {{ end }}
     <input
         id="{{ .ID }}"
         name="{{ .Name }}"
         type="{{ .Type }}"
         autocomplete="{{ .Autocomplete }}"
+        {{ if .Pattern }} pattern="{{ .Pattern }}" {{ end }}
         {{ if .Required }} required {{ end }}
         {{ if .Value }} value="{{ .Value }}" {{ end }}
         class="w-full rounded-md border-2 border-gray-300 px-3 py-2 shadow-sm placeholder-gray-400 focus:border-indigo-500 focus:outline-none"

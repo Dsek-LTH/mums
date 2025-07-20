@@ -7,6 +7,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/Dsek-LTH/mums/internal/auth"
+	"github.com/Dsek-LTH/mums/internal/config"
 	"github.com/Dsek-LTH/mums/internal/context"
 	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/roles"
@@ -19,6 +20,8 @@ type homePageData struct {
 	UserPhaddergruppSummaries             []db.UserPhaddergruppSummary
 	HasMoreThanOneUserPhaddergruppSummary bool
 	PhaddergruppName                      string
+	SwishRecipientNumber                  string
+	SwishRecipientNumberPattern           string
 	Errors                                map[string][]string
 }
 
@@ -39,12 +42,14 @@ func GetHome(c echo.Context) error {
 		UserProfileName: userProfile.Name,
 		UserPhaddergruppSummaries: userPhaddergruppSummaries,
 		HasMoreThanOneUserPhaddergruppSummary: len(userPhaddergruppSummaries) > 1,
+		SwishRecipientNumberPattern: config.SwishRecipientNumberPattern,
 	}
 	return c.Render(http.StatusOK, "home", pageData)
 }
 
 func PostHome(c echo.Context) error {
 	phaddergruppName := c.FormValue("phaddergrupp-name")
+	swishRecipientNumber := c.FormValue("swish-recipient-number")
 
 	unexpectedFormError := func() error {
 		pageData := homePageData{
@@ -63,7 +68,7 @@ func PostHome(c echo.Context) error {
 		return unexpectedFormError()	
 	}
 	defer tx.Rollback()
-	phaddergruppID, err := database.CreatePhaddergrupp(database, phaddergruppName)
+	phaddergruppID, err := database.CreatePhaddergrupp(database, phaddergruppName, swishRecipientNumber)
 	if err != nil {
 		c.Logger().Errorf("Database error during phaddergrupp creation: %v", err)
 		return unexpectedFormError()	

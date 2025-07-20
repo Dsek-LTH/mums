@@ -6,4 +6,6 @@ const (
 	DefaultMumsPriceN0lla             = 10.0
 	DefaultMumsPricePhadder           = 10.0
 	DefaultMumsCurrecy                = "SEK"
+
+	SwishRecipientNumberPattern       = `^(\+46 ?(\(0\))?|0) ?7[02369]-?\d{3} ?\d{2} ?\d{2}$`
 )

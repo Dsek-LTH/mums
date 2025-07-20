@@ -76,6 +76,16 @@
         "Required" true
         "Value" .PhaddergruppName
     }}
+    {{ template "form-input-field" dict
+        "ID" "swish-recipient-number-field"
+        "Label" "Swish recipient's number"
+        "InfoLabel" "Format example: 0704201337"
+        "Name" "swish-recipient-number"
+        "Type" "tel"
+        "Pattern" .SwishRecipientNumberPattern
+        "Required" true
+        "Value" .SwishRecipientNumber
+    }}
     {{ template "form-errors" dict "Errors" .Errors.Generic }}
 </div>
 {{ end }}

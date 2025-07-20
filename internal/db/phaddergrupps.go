@@ -8,15 +8,16 @@ import (
 )
 
 type PhaddergruppData struct {
-	CreatedAt time.Time
-	Name string
-	LogoFilePath sql.NullString
-	PrimaryColor string
-	SecondaryColor string
-	MumsPriceN0lla float64
-	MumsPricePhadder float64
-	MumsCurrency string
-	SwishRecipientNumber sql.NullString
+	CreatedAt            time.Time
+	Name                 string
+	LogoFilePath         sql.NullString
+	PrimaryColor         string
+	SecondaryColor       string
+	MumsPriceN0lla       float64
+	MumsPricePhadder     float64
+	MumsCurrency         string
+	SwishRecipientNumber string
+	MumsCapacityPerUser  int64
 }
 
 const SchemaPhaddergrupps = `
@@ -30,18 +31,21 @@ CREATE TABLE IF NOT EXISTS phaddergrupps (
 	mums_price_n0lla REAL NOT NULL,
 	mums_price_phadder REAL NOT NULL,
 	mums_currency TEXT NOT NULL,
-	swish_recipient_number TEXT DEFAULT NULL
+	swish_recipient_number TEXT NOT NULL,
+	mums_capacity_per_user INTEGER NOT NULL
 );`
 
-func (db *DB) CreatePhaddergrupp(exec execer, name string) (int64, error) {
+func (db *DB) CreatePhaddergrupp(exec execer, name, swishRecipientNumber string) (int64, error) {
 	res, err := exec.Exec(
-		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_n0lla, mums_price_phadder, mums_currency) VALUES (?, ?, ?, ?, ?, ?)`,
+		`INSERT INTO phaddergrupps (name, primary_color, secondary_color, mums_price_n0lla, mums_price_phadder, mums_currency, swish_recipient_number, mums_capacity_per_user) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		name,
 		config.DefaultPrimaryPhaddergruppColor,
 		config.DefaultSecondaryPhaddergruppColor,
 		config.DefaultMumsPriceN0lla,
 		config.DefaultMumsPricePhadder,
 		config.DefaultMumsCurrecy,
+		swishRecipientNumber,
+		config.DefaultMumsCapacityPerUser,
 	)
 	if err != nil {
 		return 0, err
@@ -68,7 +72,8 @@ func (db *DB) ReadPhaddergrupp(q queryer, phaddergruppID int64) (PhaddergruppDat
 			mums_price_n0lla,
 			mums_price_phadder,
 			mums_currency,
-			swish_recipient_number
+			swish_recipient_number,
+			mums_capacity_per_user
 		FROM
 			phaddergrupps
 		WHERE
@@ -88,6 +93,7 @@ func (db *DB) ReadPhaddergrupp(q queryer, phaddergruppID int64) (PhaddergruppDat
 		&pd.MumsPricePhadder,
 		&pd.MumsCurrency,
 		&pd.SwishRecipientNumber,
+		&pd.MumsCapacityPerUser,
 	); err != nil {
 		return PhaddergruppData{}, err
 	}
