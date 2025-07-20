@@ -11,6 +11,7 @@ import (
 	"github.com/Dsek-LTH/mums/internal/context"
 	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/Dsek-LTH/mums/pkg/httpx"
 )
 
 type homePageData struct {
@@ -84,6 +85,6 @@ func PostHome(c echo.Context) error {
 		return unexpectedFormError()	
 	}
 
-	c.Response().Header().Set("HX-Redirect", fmt.Sprintf("/phaddergrupp/%d", phaddergruppID))
-	return c.NoContent(http.StatusOK)
+	redirectURL := fmt.Sprintf("/phaddergrupp/%d", phaddergruppID)
+	return httpx.Redirect(c, http.StatusSeeOther, redirectURL)
 }

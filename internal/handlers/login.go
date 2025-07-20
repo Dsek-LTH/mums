@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"fmt"
 	"database/sql"
+	"fmt"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 
 	"github.com/Dsek-LTH/mums/internal/auth"
 	"github.com/Dsek-LTH/mums/internal/db"
+	"github.com/Dsek-LTH/mums/pkg/httpx"
 	"github.com/Dsek-LTH/mums/pkg/password"
 )
 
@@ -43,8 +44,7 @@ func loginUser(c echo.Context, ss *auth.SessionStore, userAccountID int64) error
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
 	}
 
-	c.Response().Header().Set("HX-Redirect", redirectURL)
-	return c.NoContent(http.StatusOK)
+	return httpx.Redirect(c, http.StatusSeeOther, redirectURL)
 }
 
 

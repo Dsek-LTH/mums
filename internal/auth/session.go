@@ -8,6 +8,7 @@ import (
 	"github.com/labstack/echo/v4"
 
 	"github.com/Dsek-LTH/mums/internal/config"
+	"github.com/Dsek-LTH/mums/pkg/httpx"
 	"github.com/Dsek-LTH/mums/pkg/token"
 )
 
@@ -170,7 +171,7 @@ func RequireSession() echo.MiddlewareFunc {
 				return next(c)
 			}
 
-			return c.Redirect(http.StatusSeeOther, "/login")
+			return httpx.Redirect(c, http.StatusSeeOther, "/login")
 		}
 	}
 }
