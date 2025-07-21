@@ -38,7 +38,7 @@ func (s *session) touch() {
 
 type SessionStore struct {
 	sync.RWMutex
-	sessions map[string]*session // sessionID -> userAccountID
+	sessions map[string]*session // sessionToken -> userAccountID
 }
 
 func (ss *SessionStore) cleanupExpiredSessions() {
@@ -47,9 +47,9 @@ func (ss *SessionStore) cleanupExpiredSessions() {
 
 	for range ticker.C {
 		ss.Lock()
-		for sid, s := range ss.sessions {
+		for sessionToken, s := range ss.sessions {
 			if s.isExpired() {
-				delete(ss.sessions, sid)
+				delete(ss.sessions, sessionToken)
 			}
 		}
 		ss.Unlock()
@@ -65,35 +65,34 @@ func NewSessionStore() *SessionStore {
 }
 
 func (ss *SessionStore) createSession(userAccountID int64) string {
-	// token.GenerateSecure is guaranteed not to return an error
-	sid := token.MustGenerateSecure(config.SessionIDLength)
+	sessionToken := token.MustGenerateSecure(config.SessionTokenSize)
 	s := newSession(userAccountID)
 
 	ss.Lock()
-	ss.sessions[sid] = s
+	ss.sessions[sessionToken] = s
 	ss.Unlock()
 
-	return sid
+	return sessionToken
 }
 
-func (ss *SessionStore) getSession(sid string) (*session, bool) {
+func (ss *SessionStore) getSession(sessionToken string) (*session, bool) {
 	ss.RLock()
-	s, ok := ss.sessions[sid]
+	s, ok := ss.sessions[sessionToken]
 	ss.RUnlock()
 
 	return s, ok
 }
 
-func (ss *SessionStore) deleteSession(sid string) {
+func (ss *SessionStore) deleteSession(sessionToken string) {
 	ss.Lock()
-	delete(ss.sessions, sid)
+	delete(ss.sessions, sessionToken)
 	ss.Unlock()
 }
 
-func setSessionCookie(c echo.Context, sid string, expiresAt time.Time) {
+func setSessionCookie(c echo.Context, sessionToken string, expiresAt time.Time) {
 	sc := new(http.Cookie)
 	sc.Name = config.SessionCookieName
-	sc.Value = sid
+	sc.Value = sessionToken
 	sc.Path = "/"
 	sc.HttpOnly = true
 	sc.Secure = true // Set to false for local development, better solution needed
@@ -103,9 +102,9 @@ func setSessionCookie(c echo.Context, sid string, expiresAt time.Time) {
 }
 
 func LoginUser(c echo.Context, ss *SessionStore, userAccountID int64) {
-	sid := ss.createSession(userAccountID)
+	sessionToken := ss.createSession(userAccountID)
 
-	setSessionCookie(c, sid, time.Now().Add(config.SessionExpirationTime))
+	setSessionCookie(c, sessionToken, time.Now().Add(config.SessionExpirationTime))
 }
 
 func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
@@ -120,9 +119,9 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 			if err != nil {
 				return setNotLoggedIn()
 			}
-			sid := sc.Value
+			sessionToken := sc.Value
 
-			s, ok := ss.getSession(sid)
+			s, ok := ss.getSession(sessionToken)
 			if !ok {
 				return setNotLoggedIn()
 			}
@@ -133,9 +132,9 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 				return setNotLoggedIn()
 			}
 			s.touch()
-			setSessionCookie(c, sid, s.expiresAt)
-
-			c.Set(config.CTXKeySessionID, sid)
+			setSessionCookie(c, sessionToken, s.expiresAt)
+			
+			c.Set(config.CTXKeySessionToken, sessionToken)
 			c.Set(config.CTXKeyIsLoggedIn, true)
 			c.Set(config.CTXKeyUserAccountID, s.userAccountID)
 
@@ -144,13 +143,13 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 	}
 }
 
-func GetSessionID(c echo.Context) string {
-	sid, ok := c.Get(config.CTXKeySessionID).(string)
+func getSessionToken(c echo.Context) string {
+	sessionToken, ok := c.Get(config.CTXKeySessionToken).(string)
 	if !ok {
-		panic("config.CTXKeyIsLoggedIn is not set in context, was SessionMiddleware not applied?")
+		panic("config.CTXKeySessionToken is not set in context, was SessionMiddleware not applied?")
 	}
 
-	return sid
+	return sessionToken
 }
 
 func GetIsLoggedIn(c echo.Context) bool {
@@ -184,7 +183,7 @@ func RequireSession() echo.MiddlewareFunc {
 }
 
 func LogoutUser(c echo.Context, ss *SessionStore) {
-	ss.deleteSession(GetSessionID(c))
+	ss.deleteSession(getSessionToken(c))
 
 	setSessionCookie(c, "", time.Unix(0, 0))
 }

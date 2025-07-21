@@ -3,7 +3,7 @@ package config
 const (
 	CTXKeyDB = "db"
 
-	CTXKeySessionID       = "sessionID"
+	CTXKeySessionToken    = "sessionID"
 	CTXKeyUserAccountID   = "userAccountID"
 	CTXKeyIsLoggedIn      = "isLoggedIn"
 
