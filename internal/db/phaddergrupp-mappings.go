@@ -86,6 +86,28 @@ func (db *DB) ReadPhaddergruppRole(q queryer, userAccountID, phaddergruppID int6
 	return phaddergruppRole, nil
 }
 
+func (db *DB) ReadMumsAvailable(q queryer, userAccountID, phaddergruppID int64) (int64, error) {
+	sql := `
+		SELECT mums_available
+		FROM phaddergrupp_mappings
+		WHERE user_account_id = ? AND phaddergrupp_id = ?
+	`
+	row := q.QueryRow(sql, userAccountID, phaddergruppID)
+
+	var mumsAvailable int64 
+	if err := row.Scan(&mumsAvailable); err != nil {
+		return 0, err
+	}
+
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBRead,
+		nil,
+	})
+
+	return mumsAvailable, nil
+}
+
 type UserPhaddergruppSummary struct {
 	ID               int64
 	Name             string
@@ -175,6 +197,75 @@ func (db *DB) ReadUserPhaddergruppSummariesByUserAccountID(q queryer, userAccoun
 	return summaries, nil
 }
 
+type PhaddergruppUserSummary struct {
+    ID               int64
+    Name             string
+    PhaddergruppRole roles.PhaddergruppRole
+    MumsAvailable    int
+}
+
+func (db *DB) ReadPhaddergruppUserSummariesByPhaddergruppID(q queryer, phaddergruppID int64) ([]PhaddergruppUserSummary, error) {
+    const sql = `
+        SELECT
+            ua.id,
+            up.name,
+            pm.phaddergrupp_role,
+            pm.mums_available
+        FROM
+            phaddergrupp_mappings AS pm
+        JOIN
+            user_accounts AS ua ON ua.id = pm.user_account_id
+        JOIN
+            user_profiles AS up ON up.id = ua.user_profile_id
+        WHERE
+            pm.phaddergrupp_id = ?
+        ORDER BY
+            up.name;
+    `
+
+    rows, err := q.Query(sql, phaddergruppID)
+    if err != nil {
+        return nil, err
+    }
+    defer rows.Close()
+
+    var summaries []PhaddergruppUserSummary
+    for rows.Next() {
+        var s PhaddergruppUserSummary
+        if err := rows.Scan(
+            &s.ID,
+            &s.Name,
+            &s.PhaddergruppRole,
+            &s.MumsAvailable,
+        ); err != nil {
+            return nil, err
+        }
+        summaries = append(summaries, s)
+    }
+
+    if err := rows.Err(); err != nil {
+        return nil, err
+    }
+
+    db.Emit(DBEvent{
+        "phaddergrupp_mappings",
+        DBRead,
+        nil,
+    })
+    db.Emit(DBEvent{
+        "user_accounts",
+        DBRead,
+        nil,
+    })
+    db.Emit(DBEvent{
+        "user_profiles",
+        DBRead,
+        nil,
+    })
+
+    return summaries, nil
+}
+
 func (db *DB) ReadLastCreatedPhaddergruppIDByUserAccountID(q queryer, userAccountID int64) (int64, error) {
 	const sql =`
 		SELECT
@@ -203,4 +294,29 @@ func (db *DB) ReadLastCreatedPhaddergruppIDByUserAccountID(q queryer, userAccoun
 	})
 
 	return phaddergruppID, nil
+}
+
+// Returns zero if no rows were affected (not found = 0 as well)
+func (db *DB) UpdateAdjustMumsAvailable(q queryer, userAccountID, phaddergruppID, amount int64) (int64, error) {
+	const sqlQuery = `
+		UPDATE 
+			phaddergrupp_mappings
+		SET 
+			mums_available = mums_available + ?
+		WHERE 
+			user_account_id = ? AND phaddergrupp_id = ? AND mums_available + ? >= 0
+		RETURNING
+			mums_available;
+	`
+
+	var mumsAvailable int64
+	row := q.QueryRow(sqlQuery, amount, userAccountID, phaddergruppID, amount)
+	if err := row.Scan(&mumsAvailable); err != nil {
+		if err == sql.ErrNoRows {
+			return 0, nil
+		}
+		return 0, err
+	}
+
+	return mumsAvailable, nil
 }
