@@ -12,6 +12,7 @@ import (
 	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/roles"
 	"github.com/Dsek-LTH/mums/pkg/httpx"
+	"github.com/Dsek-LTH/mums/pkg/token"
 )
 
 type homePageData struct {
@@ -72,12 +73,22 @@ func PostHome(c echo.Context) error {
 	phaddergruppID, err := database.CreatePhaddergrupp(database, phaddergruppName, swishRecipientNumber)
 	if err != nil {
 		c.Logger().Errorf("Database error during phaddergrupp creation: %v", err)
-		return unexpectedFormError()	
+		return unexpectedFormError()
 	}
 	err = database.CreatePhaddergruppMapping(tx, userAccountID, phaddergruppID, roles.Phadder)
 	if err != nil {
 		c.Logger().Errorf("Database error during phaddergrupp mapping creation during phaddergrupp creation: %v", err)
-		return unexpectedFormError()	
+		return unexpectedFormError()
+	}
+	err = database.CreatePhaddergruppInvite(tx, token.MustGenerateSecure(config.PhaddergruppInviteTokenSize), phaddergruppID, roles.N0lla)
+	if err != nil {
+		c.Logger().Errorf("Database error during phaddergrupp invite (roles.N0lla) creation during phaddergrupp creation: %v", err)
+		return unexpectedFormError()
+	}
+	err = database.CreatePhaddergruppInvite(tx, token.MustGenerateSecure(config.PhaddergruppInviteTokenSize), phaddergruppID, roles.Phadder)
+	if err != nil {
+		c.Logger().Errorf("Database error during phaddergrupp invite (roles.N0lla) creation during phaddergrupp creation: %v", err)
+		return unexpectedFormError()
 	}
 	err = tx.Commit()
 	if err != nil {

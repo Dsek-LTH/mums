@@ -11,7 +11,7 @@ import (
 	_ "modernc.org/sqlite"
 )
 
-var Schemas = []string{
+var schemas = []string{
 	SchemaUserAccountRoleMappings,
 	SchemaMums,
 	SchemaPhaddergruppMappings,
@@ -19,6 +19,11 @@ var Schemas = []string{
 	SchemaUserAccounts,
 	SchemaUserCredentials,
 	SchemaUserProfiles,
+	SchemaPhaddergruppInvites,
+}
+
+var indexes = []string{
+	IndexPhaddergruppInvitesOnPhaddergruppID,
 }
 
 type execer interface {
@@ -54,9 +59,14 @@ func NewDB(dbFilePath string) (*DB, error) {
 		return nil, fmt.Errorf("enabling foreign_keys failed: %w", err)
 	}
 
-	for _, schema := range Schemas {
+	for _, schema := range schemas {
 		if _, err := sqlDB.Exec(schema); err != nil {
 			return nil, fmt.Errorf("failed to create schema: %w", err)
+		}
+	}
+	for _, index := range indexes {
+		if _, err := sqlDB.Exec(index); err != nil {
+			return nil, fmt.Errorf("failed to create index: %w", err)
 		}
 	}
 

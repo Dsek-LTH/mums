@@ -34,6 +34,37 @@ func (db *DB) CreatePhaddergruppMapping(exec execer, userAccountID, phaddergrupp
 	return err
 }
 
+func (db *DB) ReadUserAccountIsMemberOfPhaddergrupp(q queryer, userAccountID, phaddergruppID int64) (bool, error) {
+	const sql = `
+		SELECT
+			EXISTS (
+				SELECT
+					1
+				FROM
+					phaddergrupp_mappings
+				WHERE
+					user_account_id = ?
+					AND phaddergrupp_id = ?
+			);
+	`
+
+	row := q.QueryRow(sql, userAccountID, phaddergruppID)
+
+	var exists bool
+	if err := row.Scan(&exists); err != nil {
+		return false, err
+	}
+
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBRead,
+		nil,
+	})
+
+	return exists, nil
+}
+
+
 func (db *DB) ReadPhaddergruppRole(q queryer, userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
 	row := q.QueryRow(`
 		SELECT phaddergrupp_role

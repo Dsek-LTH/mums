@@ -30,7 +30,7 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 	protected.POST("/logout", handlers.PostLogout(ss))
 	protected.GET("/admin", handlers.GetAdmin, auth.RequireUserAccountRole(roles.Admin))
 	protected.POST("/admin", handlers.PostAdmin, auth.RequireUserAccountRole(roles.Admin))
-	protected.GET("/invite", handlers.GetInvite)
+	protected.GET("/invite/:token", handlers.GetInvite)
 
 	phaddergrupp := protected.Group(
 		"/phaddergrupp",
