@@ -10,9 +10,9 @@ const (
 	CTXKeyUserAccountRoles = "userAccountRoles"
 	CTXKeyIsSuperAdmin     = "isSuperAdmin"
 
-	CTXKeyPhaddergruppID = "phaddergruppID"
+	CTXKeyPhaddergruppID   = "phaddergruppID"
 	CTXKeyPhaddergruppRole = "phaddergruppRole"
 
-	CTXKeyUserProfile = "userProfile"
-	CTXKeyPhaddergrupp = "phaddergrupp"
+	CTXKeyUserProfile      = "userProfile"
+	CTXKeyPhaddergrupp     = "phaddergrupp"
 )
