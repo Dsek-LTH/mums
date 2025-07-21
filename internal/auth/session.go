@@ -41,7 +41,7 @@ type SessionStore struct {
 	sessions map[string]*session // sessionID -> userAccountID
 }
 
-func (ss *SessionStore) CleanupExpiredSessions() {
+func (ss *SessionStore) cleanupExpiredSessions() {
 	ticker := time.NewTicker(config.SessionCleanupInterval)
 	defer ticker.Stop()
 
@@ -52,18 +52,19 @@ func (ss *SessionStore) CleanupExpiredSessions() {
 				delete(ss.sessions, sid)
 			}
 		}
+		ss.Unlock()
 	}
 }
 
 func NewSessionStore() *SessionStore {
 	ss := &SessionStore{sessions: make(map[string]*session)}
 
-	go ss.CleanupExpiredSessions()
+	go ss.cleanupExpiredSessions()
 
 	return ss
 }
 
-func (ss *SessionStore) CreateSession(userAccountID int64) string {
+func (ss *SessionStore) createSession(userAccountID int64) string {
 	// token.GenerateSecure is guaranteed not to return an error
 	sid := token.MustGenerateSecure(config.SessionIDLength)
 	s := newSession(userAccountID)
@@ -75,7 +76,7 @@ func (ss *SessionStore) CreateSession(userAccountID int64) string {
 	return sid
 }
 
-func (ss *SessionStore) GetSession(sid string) (*session, bool) {
+func (ss *SessionStore) getSession(sid string) (*session, bool) {
 	ss.RLock()
 	s, ok := ss.sessions[sid]
 	ss.RUnlock()
@@ -83,7 +84,7 @@ func (ss *SessionStore) GetSession(sid string) (*session, bool) {
 	return s, ok
 }
 
-func (ss *SessionStore) DeleteSession(sid string) {
+func (ss *SessionStore) deleteSession(sid string) {
 	ss.Lock()
 	delete(ss.sessions, sid)
 	ss.Unlock()
@@ -102,7 +103,7 @@ func setSessionCookie(c echo.Context, sid string, expiresAt time.Time) {
 }
 
 func LoginUser(c echo.Context, ss *SessionStore, userAccountID int64) {
-	sid := ss.CreateSession(userAccountID)
+	sid := ss.createSession(userAccountID)
 
 	setSessionCookie(c, sid, time.Now().Add(config.SessionExpirationTime))
 }
@@ -121,13 +122,14 @@ func SessionMiddleware(ss *SessionStore) echo.MiddlewareFunc {
 			}
 			sid := sc.Value
 
-			s, ok := ss.GetSession(sid)
+			s, ok := ss.getSession(sid)
 			if !ok {
 				return setNotLoggedIn()
 			}
 
 			if s.isExpired() {
-				ss.DeleteSession(sid)
+				// Do *NOT* use SessionStore.deleteSession. Deletion is
+				// handeled by CleanupExpiredSessionsSweeper!
 				return setNotLoggedIn()
 			}
 			s.touch()
@@ -182,7 +184,7 @@ func RequireSession() echo.MiddlewareFunc {
 }
 
 func LogoutUser(c echo.Context, ss *SessionStore) {
-	ss.DeleteSession(GetSessionID(c))
+	ss.deleteSession(GetSessionID(c))
 
 	setSessionCookie(c, "", time.Unix(0, 0))
 }
