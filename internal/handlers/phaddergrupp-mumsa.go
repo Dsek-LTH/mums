@@ -8,7 +8,6 @@ import (
 
 	"github.com/Dsek-LTH/mums/internal/auth"
 	"github.com/Dsek-LTH/mums/internal/context"
-	"github.com/Dsek-LTH/mums/internal/config"
 	"github.com/Dsek-LTH/mums/internal/db"
 )
 
@@ -30,7 +29,7 @@ func PostPhaddergruppMumsa(c echo.Context) error {
 		PhaddergruppID: phaddergruppID,
 		PhaddergruppData: phaddergruppData,
 		MumsAvailable: mumsAvailable,
-		MumsCapacityReached: mumsAvailable >= config.MumsMaxPurchaseQuantity,
+		MumsCapacityReached: mumsAvailable >= phaddergruppData.MumsCapacityPerUser,
 		MumsPurchaseQuantities: purchaseQuantities,
 	}
 	return c.Render(http.StatusOK, "phaddergrupp#mums", pageData)

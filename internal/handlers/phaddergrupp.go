@@ -40,10 +40,11 @@ func mumsPurchaseQuantities(mumsAvailable, mumsCapacityPerUser int64) []int {
 }
 
 func GetPhaddergrupp(c echo.Context) error {
+	database := db.GetDB(c)
 	userAccountID := auth.GetUserAccountID(c)
 	phaddergruppID := auth.GetPhaddergruppID(c)
 	phaddergruppRole := auth.GetPhaddergruppRole(c)
-	database := db.GetDB(c)
+	phaddergruppData := context.GetPhaddergrupp(c)
 
 	mumsAvailable, err := database.ReadMumsAvailable(database, userAccountID, phaddergruppID)
 	if err != nil {
@@ -77,7 +78,7 @@ func GetPhaddergrupp(c echo.Context) error {
 		UserProfileData: context.GetUserProfile(c),
 		PhaddergruppData: context.GetPhaddergrupp(c),
 		PhaddergruppUserSummaries: phaddergruppUserSummaries,
-		MumsCapacityReached: mumsAvailable >= config.MumsMaxPurchaseQuantity,
+		MumsCapacityReached: mumsAvailable >= phaddergruppData.MumsCapacityPerUser,
 		MumsPurchaseQuantities: purchaseQuantities,
 		InviteURLN0lla: inviteURLN0lla,
 		InviteURLPhadder: inviteURLPhadder,
