@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 )
 
-func MustGenerateSecure(length int) string {
-	token := make([]byte, length)
+func MustGenerateSecure(size int) string {
+	token := make([]byte, size)
 	if _, err := rand.Read(token); err != nil {
 		panic("failed to generate secure random token: " + err.Error())
 	}
