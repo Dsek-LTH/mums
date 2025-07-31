@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"strings"
+	"time"
 
 	"github.com/labstack/echo/v4"
 
@@ -100,6 +101,8 @@ func GetPhaddergruppEventStream(c echo.Context) error {
 	for {
 		select {
 		case <-c.Request().Context().Done():
+			return nil
+		case <-time.After(config.SSETimeout):
 			return nil
 		case event, ok := <-events:
 			if !ok {
