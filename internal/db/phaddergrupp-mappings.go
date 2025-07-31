@@ -368,9 +368,6 @@ func (db *DB) UpdateAdjustMumsAvailable(q queryer, userAccountID, phaddergruppID
 	var mumsAvailable int64
 	row := q.QueryRow(sqlQuery, amount, userAccountID, phaddergruppID, amount)
 	if err := row.Scan(&mumsAvailable); err != nil {
-		if err == sql.ErrNoRows {
-			return 0, nil
-		}
 		return 0, err
 	}
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -32,6 +33,9 @@ func PostPhaddergruppMumsAdjust(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "delta must be a valid integer")
 	}
+	if delta == 0 {
+		return echo.NewHTTPError(http.StatusBadRequest, "delta must be non-zero")
+	}
 
 	tx, err := database.Begin()
 	if err != nil {
@@ -49,7 +53,15 @@ func PostPhaddergruppMumsAdjust(c echo.Context) error {
 	}
 	_, err = database.UpdateAdjustMumsAvailable(tx, userAccountID, phaddergruppID, delta)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusUnprocessableEntity, "Too large negative adjustment or user not member in phaddergrupp")
+		}
 		c.Logger().Errorf("Database error during mums available adjustment for user %d in phaddergrupp %d: %v", userAccountID, phaddergruppID, err)
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
+	}
+	_, err = database.CreateMums(tx, userAccountID, phaddergruppID, delta, db.Purchase)
+	if err != nil {
+		c.Logger().Errorf("Database error during mums log entry creation: %v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
 	}
 	err = tx.Commit()
