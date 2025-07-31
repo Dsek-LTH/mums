@@ -17,11 +17,12 @@ type phaddergruppPageData struct {
 	IsLoggedIn                bool
 	AllowedErrorCodes         []int
 	PhaddergruppID            int64
-	PhaddergruppRole          roles.PhaddergruppRole
+	IsPhadder				  bool
 	MumsAvailable             int64
 	db.UserProfileData
 	db.PhaddergruppData 
-	PhaddergruppUserSummaries []db.PhaddergruppUserSummary
+	PhaddergruppUserSummaries db.PhaddergruppUserSummaries
+	HasMumsAvailable          bool
 	MumsCapacityReached       bool
 	MumsPurchaseQuantities    []int
 	InviteURLN0lla            string
@@ -58,7 +59,7 @@ func GetPhaddergrupp(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
 	}
 	
-	purchaseQuantities := mumsPurchaseQuantities(mumsAvailable, config.MumsMaxPurchaseQuantity)
+	purchaseQuantities := mumsPurchaseQuantities(mumsAvailable, phaddergruppData.MumsCapacityPerUser)
 
 	inviteTokens, err := database.ReadPhaddergruppInviteTokensByPhaddergruppID(database, phaddergruppID)
 	if err != nil {
@@ -73,19 +74,16 @@ func GetPhaddergrupp(c echo.Context) error {
 		IsLoggedIn: auth.GetIsLoggedIn(c),
 		AllowedErrorCodes: []int{http.StatusInternalServerError},
 		PhaddergruppID: phaddergruppID,
-		PhaddergruppRole: phaddergruppRole,
+		IsPhadder: phaddergruppRole == roles.Phadder,
 		MumsAvailable: mumsAvailable,
 		UserProfileData: context.GetUserProfile(c),
 		PhaddergruppData: context.GetPhaddergrupp(c),
 		PhaddergruppUserSummaries: phaddergruppUserSummaries,
+		HasMumsAvailable: mumsAvailable > 0,
 		MumsCapacityReached: mumsAvailable >= phaddergruppData.MumsCapacityPerUser,
 		MumsPurchaseQuantities: purchaseQuantities,
 		InviteURLN0lla: inviteURLN0lla,
 		InviteURLPhadder: inviteURLPhadder,
 	}
 	return c.Render(http.StatusOK, "phaddergrupp", pageData)
-}
-
-func PostPhaddergrupp(c echo.Context) error {
-	return nil
 }

@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"database/sql"
 
 	"github.com/Dsek-LTH/mums/internal/roles"
@@ -16,6 +17,12 @@ CREATE TABLE IF NOT EXISTS phaddergrupp_mappings (
     FOREIGN KEY (user_account_id) REFERENCES user_accounts(id) ON DELETE CASCADE,
     FOREIGN KEY (phaddergrupp_id) REFERENCES phaddergrupps(id) ON DELETE CASCADE
 );`
+const IndexPhaddergruppMappingsOnPhaddergruppID = `
+CREATE INDEX IF NOT EXISTS 
+	idx_phaddergrupp_mappings_phaddergrupp_id 
+ON 
+	phaddergrupp_mappings(phaddergrupp_id)
+;`
 
 func (db *DB) CreatePhaddergruppMapping(exec execer, userAccountID, phaddergruppID int64, phaddergruppRole roles.PhaddergruppRole) error {
 	_, err := exec.Exec(
@@ -43,8 +50,7 @@ func (db *DB) ReadUserAccountIsMemberOfPhaddergrupp(q queryer, userAccountID, ph
 				FROM
 					phaddergrupp_mappings
 				WHERE
-					user_account_id = ?
-					AND phaddergrupp_id = ?
+					user_account_id = ? AND phaddergrupp_id = ?
 			);
 	`
 
@@ -64,6 +70,30 @@ func (db *DB) ReadUserAccountIsMemberOfPhaddergrupp(q queryer, userAccountID, ph
 	return exists, nil
 }
 
+func (db *DB) ReadPhaddergruppIsEmpty(q queryer, phaddergruppID int64) (bool, error) {
+	const sqlQuery = `
+		SELECT NOT EXISTS (
+			SELECT 1
+			FROM phaddergrupp_mappings
+			WHERE phaddergrupp_id = ?
+		)
+	`
+
+	row := q.QueryRow(sqlQuery, phaddergruppID)
+
+	var isEmpty bool
+	if err := row.Scan(&isEmpty); err != nil {
+		return false, err
+	}
+
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBRead,
+		nil,
+	})
+
+	return isEmpty, nil
+}
 
 func (db *DB) ReadPhaddergruppRole(q queryer, userAccountID, phaddergruppID int64) (roles.PhaddergruppRole, error) {
 	row := q.QueryRow(`
@@ -197,14 +227,20 @@ func (db *DB) ReadUserPhaddergruppSummariesByUserAccountID(q queryer, userAccoun
 	return summaries, nil
 }
 
+
 type PhaddergruppUserSummary struct {
-    ID               int64
-    Name             string
+    UserAccountID    int64
+    UserProfileName  string
     PhaddergruppRole roles.PhaddergruppRole
     MumsAvailable    int
 }
 
-func (db *DB) ReadPhaddergruppUserSummariesByPhaddergruppID(q queryer, phaddergruppID int64) ([]PhaddergruppUserSummary, error) {
+type PhaddergruppUserSummaries struct {
+	N0llas   []PhaddergruppUserSummary
+	Phadders []PhaddergruppUserSummary
+}
+
+func (db *DB) ReadPhaddergruppUserSummariesByPhaddergruppID(q queryer, phaddergruppID int64) (PhaddergruppUserSummaries, error) {
     const sql = `
         SELECT
             ua.id,
@@ -225,26 +261,35 @@ func (db *DB) ReadPhaddergruppUserSummariesByPhaddergruppID(q queryer, phaddergr
 
     rows, err := q.Query(sql, phaddergruppID)
     if err != nil {
-        return nil, err
+        return PhaddergruppUserSummaries{}, err
     }
     defer rows.Close()
 
-    var summaries []PhaddergruppUserSummary
+    var summaries PhaddergruppUserSummaries
+
     for rows.Next() {
-        var s PhaddergruppUserSummary
+        var summary PhaddergruppUserSummary
         if err := rows.Scan(
-            &s.ID,
-            &s.Name,
-            &s.PhaddergruppRole,
-            &s.MumsAvailable,
+            &summary.UserAccountID,
+            &summary.UserProfileName,
+            &summary.PhaddergruppRole,
+            &summary.MumsAvailable,
         ); err != nil {
-            return nil, err
+            return PhaddergruppUserSummaries{}, err
         }
-        summaries = append(summaries, s)
+
+		switch summary.PhaddergruppRole {
+		case roles.N0lla:
+			summaries.N0llas = append(summaries.N0llas, summary)
+		case roles.Phadder:
+			summaries.Phadders = append(summaries.Phadders, summary)
+		default:
+			return PhaddergruppUserSummaries{}, fmt.Errorf("unknown phaddergrupp role: %v for user %d", summary.PhaddergruppRole, summary.UserAccountID)
+		}
     }
 
     if err := rows.Err(); err != nil {
-        return nil, err
+        return PhaddergruppUserSummaries{}, err
     }
 
     db.Emit(DBEvent{
@@ -287,6 +332,11 @@ func (db *DB) ReadLastCreatedPhaddergruppIDByUserAccountID(q queryer, userAccoun
 		return 0, err
 	}
 
+    db.Emit(DBEvent{
+        "phaddergrupp_mappings",
+        DBRead,
+        nil,
+    })
 	db.Emit(DBEvent{
 		"phaddergrupps",
 		DBRead,
@@ -294,6 +344,12 @@ func (db *DB) ReadLastCreatedPhaddergruppIDByUserAccountID(q queryer, userAccoun
 	})
 
 	return phaddergruppID, nil
+}
+
+type MumsAvailableUpdate struct {
+	UserAccountID  int64
+	PhaddergruppID int64
+	MumsAvailable  int64
 }
 
 // Returns zero if no rows were affected (not found = 0 as well)
@@ -318,5 +374,41 @@ func (db *DB) UpdateAdjustMumsAvailable(q queryer, userAccountID, phaddergruppID
 		return 0, err
 	}
 
+	db.Emit(DBEvent{
+		Table: "phaddergrupp_mappings",
+		Type:  DBUpdate,
+		Data: MumsAvailableUpdate{
+			UserAccountID: userAccountID,
+			PhaddergruppID: phaddergruppID,
+			MumsAvailable: mumsAvailable,
+		},
+	})
+
 	return mumsAvailable, nil
+}
+
+func (db *DB) DeletePhaddergruppMapping(exec execer, userAccountID, phaddergruppID int64) error {
+	const sqlQuery = `
+		DELETE FROM
+			phaddergrupp_mappings
+		WHERE
+			user_account_id = ? AND phaddergrupp_id = ?
+	`
+	result, err := exec.Exec(sqlQuery, userAccountID, phaddergruppID)
+	if err != nil {
+		return err
+	}
+
+	_, err = result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	db.Emit(DBEvent{
+		"phaddergrupp_mappings",
+		DBDelete,
+		nil,
+	})
+
+	return nil
 }

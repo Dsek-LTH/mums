@@ -4,8 +4,16 @@
 
 {{ block "title" . }}mums | Phaddergrupp{{ end }}
 
+{{ define "head" }}
+<script src="https://cdn.jsdelivr.net/npm/htmx-ext-sse@2.2.2"></script>
+{{ end }}
+
 {{ define "content" }}
-<div class="flex flex-col">
+<div
+    hx-ext="sse"
+    sse-connect="/phaddergrupp/{{ .PhaddergruppID }}/event-stream"
+    class="flex flex-col"
+>
 
     <div>
         {{ if .LogoFilePath.Valid }}
@@ -16,7 +24,7 @@
 
         <div class="flex justify-center items-center text-center font-semibold text-xl text-gray-500">
             -&nbsp;
-            {{ if eq .PhaddergruppRole "phadder" }} 
+            {{ if .IsPhadder }} 
             <img src="/static/icons/student-cap.svg" class="w-5 h-5 mr-1.5" />
             <span>Phadder</span>
             {{ else }} 
@@ -29,24 +37,147 @@
         <p class="flex-shrink-0 text-center text-3xl text-gray-700 max-w-lg truncate mt-2">{{ .UserProfileData.Name }}</p>
     </div>
 
-    {{ if eq .PhaddergruppRole "phadder" }}
-    {{ template "member-list" . }}
+    {{ if .IsPhadder }}
+    {{ template "member-lists" . }}
     {{ end }}
 
-    {{ template "mums" . }}
+    {{ if not .IsPhadder }}
+    {{ template "mums-available-widget" . }}
+    {{ end }}
 
-    {{ if eq .PhaddergruppRole "phadder" }}
-    {{ template "invite-links" . }}
+    {{ if .IsPhadder }}
+    <div class="mt-6 pt-3 space-y-3 border-t-2 border-[{{ .PrimaryColor }}]">
+        {{ template "invite-link" dict
+            "Label" "Invite Phaddrar"
+            "URL" .InviteURLPhadder
+        }}
+        {{ template "invite-link" dict
+            "Label" "Invite N0llor"
+            "URL" .InviteURLN0lla
+        }}
+    </div>
     {{ end }}
 
 </div>
 {{ end }}
 
-{{ define "member-list" }}
+{{ define "member-lists" }}
+<div 
+    sse-swap="mums-available-badge-update"
+    hx-swap="none"
+    class="mt-8 pb-3 space-y-3"
+>
+    {{ if .PhaddergruppUserSummaries.N0llas }}
+    <div>
+        <p class="text-xs text-center text-gray-400 mb-1">󱞡 N0llor 󱞣</p>
+        {{ template "member-list" dict 
+            "PhaddergruppID" .PhaddergruppID
+            "UserSummaries" .PhaddergruppUserSummaries.N0llas
+            "Color" .PrimaryColor
+        }}
+        <p class="text-xs text-center text-gray-400 mt-1">󱞽 N0llor 󱞿</p>
+    </div>
+    {{ end }}
+    {{ if .PhaddergruppUserSummaries.Phadders }}
+    <div>
+        <p class="text-xs text-center text-gray-400 mb-1">󱞡 Phaddrar 󱞣</p>
+        {{ template "member-list" dict
+            "PhaddergruppID" .PhaddergruppID
+            "UserSummaries" .PhaddergruppUserSummaries.Phadders
+            "Color" .SecondaryColor
+        }}
+        <p class="text-xs text-center text-gray-400 mt-1">󱞽 Phaddrar 󱞿</p>
+    </div>
+    {{ end }}
+</div>
 {{ end }}
 
-{{ define "mums" }}
-<div id="mums">
+{{ define "member-list" }}
+<div class="max-w-sm sm:max-w-3xl mx-auto space-y-3 px-4">
+    {{ $root := . }}
+    {{ range $_, $s := .UserSummaries }}
+    {{ template "member-summary-card" dict 
+        "Color" $root.Color
+        "PhaddergruppID" $root.PhaddergruppID
+        "MemberSummary" $s
+    }}
+    {{ end }}
+</div>
+{{ end }}
+
+{{ define "member-summary-card" }}
+<div
+    id="member-summary-card-{{ .MemberSummary.UserAccountID }}"
+    class="flex items-center w-full p-4
+           bg-white rounded-xl shadow-sm border-l-4 border-[{{ .Color }}]
+           text-gray-900"
+>
+
+    <div class="flex-1 min-w-0 space-y-1 mr-4">
+        <p class="text-lg truncate whitespace-nowrap overflow-hidden">{{ .MemberSummary.UserProfileName }}</p>
+        
+        <div class="flex items-center">
+            <button 
+                hx-post="/phaddergrupp/{{ .PhaddergruppID }}/kick?user-account-id={{ .MemberSummary.UserAccountID }}"
+                hx-confirm="Are you sure you want to kick {{ .MemberSummary.UserProfileName }} from this phaddergrupp?"
+                hx-swap="delete"
+                hx-target="#member-summary-card-{{ .MemberSummary.UserAccountID }}"
+                class="rounded-full px-4 py-1 bg-red-600 border-2 border-dashed border-yellow-400 shadow-lg hover:bg-red-700 focus:bg-red-700"
+                title="Kick user from phaddergrupp"   
+            > 
+                <img src="/static/icons/kick.svg" class="w-5 h-5 invert" />
+            </button>
+
+            {{ template "mums-available-badge" dict
+                "UserAccountID" .MemberSummary.UserAccountID
+                "DoOOB" false
+                "MumsAvailable" .MemberSummary.MumsAvailable
+            }}
+        </div>
+    </div>
+
+    <div class="flex flex-shrink-0 ml-auto items-center space-x-4">
+
+        <button
+            hx-post="/phaddergrupp/{{ .PhaddergruppID }}/mums/adjust?user-account-id={{ .MemberSummary.UserAccountID }}&delta=1"
+            hx-swap="none"
+            hx-on::after-request="this.blur()"
+            class="touch-manipulation rounded-full shadow-md hover:bg-gray-100 focus:bg-gray-100 p-2" title="Increment user's mums"
+        > 
+            <img src="/static/icons/plus.svg" class="w-12 h-12" />
+        </button>
+        
+        <button
+            hx-post="/phaddergrupp/{{ .PhaddergruppID }}/mums/adjust?user-account-id={{ .MemberSummary.UserAccountID }}&delta=-1"
+            hx-swap="none"
+            hx-on::after-request="this.blur()"
+            class="touch-manipulation rounded-full shadow-md hover:bg-gray-100 focus:bg-gray-100 p-2" title="Decrement user's mums"
+        > 
+            <img src="/static/icons/minus.svg" class="w-12 h-12" />
+        </button>
+
+    </div>
+
+</div>
+{{ end }}
+
+{{ define "mums-available-badge" }}
+<div class="flex mx-auto items-center text-indigo-600 " title="User's mums">
+    <img src="/static/icons/mums.svg" class="w-8 h-8 mr-1" />
+    <span 
+    id="mums-available-badge-{{ .UserAccountID }}"
+    {{ if .DoOOB -}} hx-swap-oob="true" {{- end }}
+    class="font-bold text-2xl text-right w-[2ch]"
+    >{{ .MumsAvailable }}</span>
+</div>
+{{ end }}
+
+{{ define "mums-available-widget" }}
+<div
+    id="mums-available-widget"
+    sse-swap="mums-available-widget-update"
+    hx-swap="outerHTML"
+>
     <div id="mums-available" class="text-center text-[192px] leading-tight {{ if .MumsCapacityReached }} text-red-700 {{ else }} text-gray-900 {{ end }}">
         {{- .MumsAvailable -}}
     </div>
@@ -70,34 +201,29 @@
             </select>
         </form>
         {{ end }}
-
-        <button hx-post="/phaddergrupp/{{ .PhaddergruppID }}/mumsa" hx-target="#mums" hx-swap="outerHTML" class="flex justify-center items-center gap-3 bg-[{{ .PrimaryColor }}] text-white
-                 px-6 py-3 rounded-md text-2xl font-semibold hover:bg-[{{ .SecondaryColor }}]
-                 focus:bg-[{{ .SecondaryColor }}] shadow-md"
+        
+        {{ if .HasMumsAvailable }}
+        <button 
+            hx-post="/phaddergrupp/{{ .PhaddergruppID }}/mumsa" 
+            hx-target="#mums-available-widget"
+            hx-swap="outerHTML"
+            hx-confirm="Are you sure you want consume one mums?"
+            hx-on::after-request="this.blur(); toastr.success('THE DEED IS DONE')"
+            class="touch-manipulation flex justify-center items-center gap-3 bg-[{{ .PrimaryColor }}] text-white
+                   px-6 py-3 rounded-md text-2xl font-semibold hover:bg-[{{ .SecondaryColor }}]
+                   focus:bg-[{{ .SecondaryColor }}] shadow-md"
         >
             <img src="/static/icons/drink.svg" class="w-6 h-6 invert" alt="Mumsa"/>
             <span class="font-semibold">Mumsa</span>
         </button>
+        {{ end }}
 
     </div>
 </div>
 {{ end }}
 
-{{ define "invite-links" }}
-<div class="max-w-md mt-6 pt-3 space-y-3 border-t-2 border-[{{ .PrimaryColor }}]">
-    {{ template "invite-link" dict
-        "Label" "Invite Phaddrar"
-        "URL" .InviteURLPhadder
-    }}
-    {{ template "invite-link" dict
-        "Label" "Invite N0llor"
-        "URL" .InviteURLN0lla
-    }}
-</div>
-{{ end }}
-
 {{ define "invite-link" }}
-<div>
+<div class="max-w-xs mx-auto">
     <label class="block text-sm font-medium text-gray-400 mb-1">
         {{ .Label }}
     </label>

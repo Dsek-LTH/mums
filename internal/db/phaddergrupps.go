@@ -106,3 +106,30 @@ func (db *DB) ReadPhaddergrupp(q queryer, phaddergruppID int64) (PhaddergruppDat
 
 	return pd, nil
 }
+
+func (db *DB) DeletePhaddergrupp(exec execer, phaddergruppID int64) error {
+    const sqlQuery = `
+        DELETE FROM
+			phaddergrupps
+        WHERE
+			id = ?
+    `
+
+    result, err := exec.Exec(sqlQuery, phaddergruppID)
+    if err != nil {
+        return err
+    }
+
+    _, err = result.RowsAffected()
+    if err != nil {
+        return err
+    }
+
+    db.Emit(DBEvent{
+        "phaddergrupps",
+        DBDelete,
+        nil,
+    })
+
+    return nil
+}

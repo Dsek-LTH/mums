@@ -23,6 +23,7 @@ var schemas = []string{
 }
 
 var indexes = []string{
+	IndexPhaddergruppMappingsOnPhaddergruppID,
 	IndexPhaddergruppInvitesOnPhaddergruppID,
 }
 
