@@ -107,6 +107,48 @@ func (db *DB) ReadPhaddergrupp(q queryer, phaddergruppID int64) (PhaddergruppDat
 	return pd, nil
 }
 
+func (db *DB) UpdatePhaddergrupp(exec execer, phaddergruppID int64, phaddergruppData PhaddergruppData) error {
+	const sqlQuery = `
+		UPDATE phaddergrupps SET
+			name = ?,
+			logo_file_path = ?,
+			primary_color = ?,
+			secondary_color = ?,
+			mums_price_n0lla = ?,
+			mums_price_phadder = ?,
+			mums_currency = ?,
+			swish_recipient_number = ?,
+			mums_capacity_per_user = ?
+		WHERE
+			id = ?
+	`
+
+	_, err := exec.Exec(sqlQuery,
+		phaddergruppData.Name,
+		phaddergruppData.LogoFilePath,
+		phaddergruppData.PrimaryColor,
+		phaddergruppData.SecondaryColor,
+		phaddergruppData.MumsPriceN0lla,
+		phaddergruppData.MumsPricePhadder,
+		phaddergruppData.MumsCurrency,
+		phaddergruppData.SwishRecipientNumber,
+		phaddergruppData.MumsCapacityPerUser,
+		phaddergruppID,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	db.Emit(DBEvent{
+		"phaddergrupps",
+		DBUpdate,
+		nil,
+	})
+
+	return nil
+}
+
 func (db *DB) DeletePhaddergrupp(exec execer, phaddergruppID int64) error {
     const sqlQuery = `
         DELETE FROM

@@ -20,7 +20,7 @@
         <img src="/static/icons/mums.svg" alt="Logo" class="mx-auto w-24 h-24 mb-4" />
         {{ end }}
 
-        <p class="flex-shrink-0 text-center text-5xl text-gray-900">{{ .PhaddergruppData.Name }}</p>
+        <p class="flex-shrink-0 max-w-xs md:max-w-md lg:mx-w-lg truncate text-center text-5xl text-gray-900">{{ .PhaddergruppData.Name }}</p>
 
         <div class="flex justify-center items-center text-center font-semibold text-xl text-gray-500">
             -&nbsp;
@@ -34,7 +34,7 @@
             &nbsp;-
         </div>
 
-        <p class="flex-shrink-0 text-center text-3xl text-gray-700 max-w-lg truncate mt-2">{{ .UserProfileData.Name }}</p>
+        <p class="flex-shrink-0 text-center text-3xl text-gray-700 max-w-xs md:max-w-md lg:mx-w-lg truncate mt-2">{{ .UserProfileData.Name }}</p>
     </div>
 
     {{ if .IsPhadder }}
@@ -55,6 +55,13 @@
             "Label" "Invite N0llor"
             "URL" .InviteURLN0lla
         }}
+    </div>
+
+    <div class="w-full flex justify-center mt-6 pt-6 border-t-2 border-[{{ .PrimaryColor }}]">
+        <a 
+            href="/phaddergrupp/{{ .PhaddergruppID }}/settings"
+            class="bg-[{{ .PrimaryColor }}] text-white text-center w-full max-w-xs py-2 rounded-md text-lg font-semibold hover:bg-[{{ .SecondaryColor }}] focus:bg-[{{ .SecondaryColor }}]"
+        > Settings</a>
     </div>
     {{ end }}
 

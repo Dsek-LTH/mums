@@ -11,6 +11,7 @@ import (
 	"github.com/Dsek-LTH/mums/internal/context"
 	"github.com/Dsek-LTH/mums/internal/db"
 	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/Dsek-LTH/mums/pkg/httpx"
 )
 
 type phaddergruppPageData struct {
@@ -86,4 +87,17 @@ func GetPhaddergrupp(c echo.Context) error {
 		InviteURLPhadder: inviteURLPhadder,
 	}
 	return c.Render(http.StatusOK, "phaddergrupp", pageData)
+}
+
+func DeletePhaddergrupp(c echo.Context) error {
+	database := db.GetDB(c)
+	phaddergruppID := auth.GetPhaddergruppID(c)
+
+	err := database.DeletePhaddergrupp(database, phaddergruppID)
+	if err != nil {
+		c.Logger().Errorf("Database error during phaddergrupp deletion: %v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Internal Server Error: %v", err))
+	}
+
+	return httpx.Redirect(c, http.StatusSeeOther, "/")
 }

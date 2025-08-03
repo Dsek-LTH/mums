@@ -1,0 +1,130 @@
+{{ define "phaddergrupp-settings" }}
+{{ template "base" . }}
+{{ end }}
+
+{{ block "title" . }}mums | Phaddergrupp Settings{{ end }}
+
+{{ define "head" }}
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+{{ end }}
+
+{{ define "content" }}
+<div class="w-full max-w-xs md:max-w-md flex flex-col justify-center">
+    <p class="text-center text-2xl max-w-xs md:max-w-md mt-8">
+        Fine-tuning 
+        <span class="inline-block max-w-xs md:max-w-md truncate whitespace-nowrap border-b-2 border-[{{ .PrimaryColor }}] align-middle">
+            {{- .Name -}}
+        </span> 
+         vibes!
+    </p>
+
+    <form
+        hx-patch="/phaddergrupp/{{ .PhaddergruppID }}/settings"
+        hx-target="#form-fields"
+        hx-swap="outerHTML"
+        hx-on::after-on-load="
+            toastr.options.timeOut = 2000;
+            toastr.options.positionClass = 'toast-top-center';
+            toastr.options.progressBar = true;
+            toastr.success('Settings saved');
+        "
+        class="w-full mx-auto my-8">
+        {{ template "form-fields" . }}
+        {{ template "form-submit-button" dict "Text" "Save" }}
+    </form>
+
+    <button
+        hx-delete="/phaddergrupp/{{ .PhaddergruppID }}"
+        hx-confirm="Are you sure you want to delete {{ .Name }}?"
+        class="w-full mx-auto py-2 rounded-md text-lg text-white font-semibold bg-red-600
+               border-2 border-dashed border-yellow-400 shadow-lg hover:bg-red-700
+               focus:bg-red-700"
+    >Delete phaddergrupp</button>
+
+    <div class="w-full flex justify-center mt-6 pt-6 border-t-2 border-[{{ .PrimaryColor }}]">
+        <a 
+            href="/phaddergrupp/{{ .PhaddergruppID }}"
+            class="w-full bg-[{{ .PrimaryColor }}] text-white text-center px-6 py-2
+                   rounded-md text-lg font-semibold hover:bg-[{{ .SecondaryColor }}]
+                   focus:bg-[{{ .SecondaryColor }}] truncate"
+        >󰌑 Return to {{ .Name }}</a>
+    </div>
+</div>
+{{ end }}
+
+{{ define "form-fields" }}
+<div id="form-fields" class="grid grid-cols-1 md:grid-cols-2 md:gap-x-6">
+    {{ template "form-input-field" dict
+        "ID" "name-field"
+        "Label" "Phaddergrupp name"
+        "Name" "name"
+        "Type" "text"
+        "Required" true
+        "Value" .Name
+    }}
+    {{ template "form-input-field" dict
+        "ID" "primary-color-field"
+        "Label" "Primary color"
+        "Name" "primary-color"
+        "Type" "color"
+        "Required" true
+        "Value" .PrimaryColor
+    }}
+    {{ template "form-input-field" dict
+        "ID" "secondary-color-field"
+        "Label" "Secondary color"
+        "Name" "secondary-color"
+        "Type" "color"
+        "Required" true
+        "Value" .SecondaryColor
+    }}
+    {{ $currencyInfo := printf "Currency: %s" .MumsCurrency }}
+    {{ template "form-input-field" dict
+        "ID" "mums-price-n0lla-field"
+        "Label" "Mums price (N0lla)"
+        "InfoLabel" $currencyInfo
+        "Name" "mums-price-n0lla"
+        "Type" "number"
+        "Min" 0
+        "Step" 0.01
+        "Required" true
+        "Value" .MumsPriceN0lla
+        "Errors" .Errors.MumsPriceN0lla
+    }}
+    {{ template "form-input-field" dict
+        "ID" "mums-price-phadder-field"
+        "Label" "Mums price (Phadder)"
+        "InfoLabel" $currencyInfo
+        "Name" "mums-price-phadder"
+        "Type" "number"
+        "Min" 0
+        "Step" 0.01
+        "Required" true
+        "Value" .MumsPricePhadder
+        "Errors" .Errors.MumsPricePhadder
+    }}
+    {{ template "form-input-field" dict
+        "ID" "swish-recipient-number-field"
+        "Label" "Swish recipient's number"
+        "InfoLabel" "Format example: 0704201337"
+        "Name" "swish-recipient-number"
+        "Type" "tel"
+        "Pattern" .SwishRecipientNumberPattern
+        "Required" true
+        "Value" .SwishRecipientNumber
+    }}
+    {{ template "form-input-field" dict
+        "ID" "mums-capacity-per-user-field"
+        "Label" "Mums capacity per user"
+        "Name" "mums-capacity-per-user"
+        "Type" "number"
+        "Min" 0
+        "Required" true
+        "Value" .MumsCapacityPerUser
+        "Errors" .Errors.MumsCapacityPerUser
+    }}
+    {{ template "form-errors" dict "Errors" .Errors.Generic }}
+</div>
+{{ end }}

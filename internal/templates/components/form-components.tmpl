@@ -10,8 +10,11 @@
         id="{{ .ID }}"
         name="{{ .Name }}"
         type="{{ .Type }}"
-        autocomplete="{{ .Autocomplete }}"
         {{ if .Pattern }} pattern="{{ .Pattern }}" {{ end }}
+        {{ if .Min }} min="{{ .Min }}" {{ end }}
+        {{ if .Max }} max="{{ .Max }}" {{ end }}
+        {{ if .Step }} step="{{ .Step }}" {{ end }}
+        autocomplete="{{ .Autocomplete }}"
         {{ if .Required }} required {{ end }}
         {{ if .Value }} value="{{ .Value }}" {{ end }}
         class="w-full rounded-md border-2 border-gray-300 px-3 py-2 shadow-sm placeholder-gray-400 focus:border-c focus:outline-none"
@@ -33,7 +36,7 @@
 {{ define "form-submit-button" }}
 <button
     type="submit"
-    class="w-full bg-d text-white py-2 rounded-md text-lg font-semibold hover:bg-c focus:bg-c "
+    class="w-full bg-d text-white py-2 rounded-md text-lg font-semibold hover:bg-c focus:bg-c"
 >
     {{ .Text }}
 </button>

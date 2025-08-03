@@ -39,12 +39,12 @@ func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {
 	)
 
 	phaddergrupp.GET("/:id", handlers.GetPhaddergrupp)
-	// phaddergrupp.DELETE("/:id", handlers.DeletePhaddergrupp)
+	phaddergrupp.DELETE("/:id", handlers.DeletePhaddergrupp)
 	phaddergrupp.GET("/:id/event-stream", handlers.GetPhaddergruppEventStream)
 	phaddergrupp.POST("/:id/purchase-mums", handlers.PostPhaddergruppPurchaseMums)
 	phaddergrupp.POST("/:id/mumsa", handlers.PostPhaddergruppMumsa)
 	phaddergrupp.POST("/:id/kick", handlers.PostPhaddergruppKick, auth.RequirePhaddergruppRole(roles.Phadder))
 	phaddergrupp.POST("/:id/mums/adjust", handlers.PostPhaddergruppMumsAdjust, auth.RequirePhaddergruppRole(roles.Phadder))
 	phaddergrupp.GET("/:id/settings", handlers.GetPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
-	// phaddergrupp.PATCH("/:id/settings", handlers.PatchPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
+	phaddergrupp.PATCH("/:id/settings", handlers.PatchPhaddergruppSettings, auth.RequirePhaddergruppRole(roles.Phadder))
 }
