@@ -12,15 +12,15 @@
 <div
     hx-ext="sse"
     sse-connect="/phaddergrupp/{{ .PhaddergruppID }}/event-stream"
-    class="flex flex-col"
+    class="w-full flex flex-col items-center"
 >
 
-    <div>
+    <div class="max-w-sm flex flex-col justify-center">
         {{ if .LogoFilePath.Valid }}
-        <img src="/static/icons/mums.svg" alt="Logo" class="mx-auto w-24 h-24 mb-4" />
+        <img src="/static/icons/mums.svg" alt="Logo" class="w-24 h-24 mb-4" />
         {{ end }}
 
-        <p class="flex-shrink-0 max-w-xs md:max-w-md lg:mx-w-lg truncate text-center text-5xl text-gray-900">{{ .PhaddergruppData.Name }}</p>
+        <p class="flex-shrink-0 text-center text-5xl break-words text-gray-900">{{ .PhaddergruppData.Name }}</p>
 
         <div class="flex justify-center items-center text-center font-semibold text-xl text-gray-500">
             -&nbsp;
@@ -34,7 +34,7 @@
             &nbsp;-
         </div>
 
-        <p class="flex-shrink-0 text-center text-3xl text-gray-700 max-w-xs md:max-w-md lg:mx-w-lg truncate mt-2">{{ .UserProfileData.Name }}</p>
+        <p class="flex-shrink-0 text-center text-3xl break-words text-gray-700 truncate mt-2">{{ .UserProfileData.Name }}</p>
     </div>
 
     {{ if .IsPhadder }}
@@ -46,7 +46,7 @@
     {{ end }}
 
     {{ if .IsPhadder }}
-    <div class="mt-6 pt-3 space-y-3 border-t-2 border-[{{ .PrimaryColor }}]">
+    <div class="w-full max-w-xs flex flex-col items-center mt-6 pt-3 space-y-3 border-t-2 border-[{{ .PrimaryColor }}]">
         {{ template "invite-link" dict
             "Label" "Invite Phaddrar"
             "URL" .InviteURLPhadder
@@ -57,7 +57,7 @@
         }}
     </div>
 
-    <div class="w-full flex justify-center mt-6 pt-6 border-t-2 border-[{{ .PrimaryColor }}]">
+    <div class="w-full max-w-xs flex justify-center mt-6 pt-6 border-t-2 border-[{{ .PrimaryColor }}]">
         <a 
             href="/phaddergrupp/{{ .PhaddergruppID }}/settings"
             class="bg-[{{ .PrimaryColor }}] text-white text-center w-full max-w-xs py-2 rounded-md text-lg font-semibold hover:bg-[{{ .SecondaryColor }}] focus:bg-[{{ .SecondaryColor }}]"
@@ -100,7 +100,7 @@
 {{ end }}
 
 {{ define "member-list" }}
-<div class="max-w-sm sm:max-w-3xl mx-auto space-y-3 px-4">
+<div class="max-w-sm sm:max-w-3xl space-y-3 px-4">
     {{ $root := . }}
     {{ range $_, $s := .UserSummaries }}
     {{ template "member-summary-card" dict 
@@ -229,7 +229,7 @@
 {{ end }}
 
 {{ define "invite-link" }}
-<div class="max-w-xs mx-auto">
+<div class="w-full">
     <label class="block text-sm font-medium text-gray-400 mb-1">
         {{ .Label }}
     </label>
