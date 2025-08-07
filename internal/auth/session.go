@@ -7,9 +7,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Dsek-LTH/mums/internal/config"
-	"github.com/Dsek-LTH/mums/pkg/httpx"
-	"github.com/Dsek-LTH/mums/pkg/token"
+	"github.com/memagu/mums/internal/config"
+	"github.com/memagu/mums/pkg/httpx"
+	"github.com/memagu/mums/pkg/token"
 )
 
 type session struct {

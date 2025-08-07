@@ -1,4 +1,4 @@
-module github.com/Dsek-LTH/mums
+module github.com/memagu/mums
 
 go 1.24.4
 

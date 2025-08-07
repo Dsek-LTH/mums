@@ -5,8 +5,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/pkg/httpx"
+	"github.com/memagu/mums/internal/auth"
+	"github.com/memagu/mums/pkg/httpx"
 )
 
 func PostLogout(ss *auth.SessionStore) echo.HandlerFunc {

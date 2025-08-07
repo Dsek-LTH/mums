@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/internal/config"
-	"github.com/Dsek-LTH/mums/internal/db"
+	"github.com/memagu/mums/internal/auth"
+	"github.com/memagu/mums/internal/config"
+	"github.com/memagu/mums/internal/db"
 	"github.com/labstack/echo/v4"
 )
 

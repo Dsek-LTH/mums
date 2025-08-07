@@ -6,9 +6,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
 
-	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/internal/db"
-	"github.com/Dsek-LTH/mums/pkg/password"
+	"github.com/memagu/mums/internal/auth"
+	"github.com/memagu/mums/internal/db"
+	"github.com/memagu/mums/pkg/password"
 )
 
 type registerPageData struct {

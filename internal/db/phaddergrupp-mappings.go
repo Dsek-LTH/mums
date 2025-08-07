@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"database/sql"
 
-	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/memagu/mums/internal/roles"
 )
 
 const SchemaPhaddergruppMappings = `

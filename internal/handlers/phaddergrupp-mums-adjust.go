@@ -8,8 +8,8 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/internal/db"
+	"github.com/memagu/mums/internal/auth"
+	"github.com/memagu/mums/internal/db"
 )
 
 func PostPhaddergruppMumsAdjust(c echo.Context) error {

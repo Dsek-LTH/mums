@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Dsek-LTH/mums/internal/config"
+	"github.com/memagu/mums/internal/config"
 	"github.com/labstack/echo/v4"
 )
 

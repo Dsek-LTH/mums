@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/memagu/mums/internal/roles"
 )
 
 const SchemaUserAccountRoleMappings = `

@@ -9,9 +9,9 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Dsek-LTH/mums/internal/config"
-	"github.com/Dsek-LTH/mums/internal/db"
-	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/memagu/mums/internal/config"
+	"github.com/memagu/mums/internal/db"
+	"github.com/memagu/mums/internal/roles"
 )
 
 func UserAccountRBACMiddleware() echo.MiddlewareFunc {

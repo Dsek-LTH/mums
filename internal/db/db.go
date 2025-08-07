@@ -6,7 +6,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/Dsek-LTH/mums/internal/config"
+	"github.com/memagu/mums/internal/config"
 	"github.com/labstack/echo/v4"
 	_ "modernc.org/sqlite"
 )

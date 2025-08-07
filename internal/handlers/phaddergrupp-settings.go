@@ -7,10 +7,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 
-	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/internal/config"
-	"github.com/Dsek-LTH/mums/internal/context"
-	"github.com/Dsek-LTH/mums/internal/db"
+	"github.com/memagu/mums/internal/auth"
+	"github.com/memagu/mums/internal/config"
+	"github.com/memagu/mums/internal/context"
+	"github.com/memagu/mums/internal/db"
 )
 
 type phaddergruppSettingsTemplateData struct {

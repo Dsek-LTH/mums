@@ -4,14 +4,14 @@
     <h4>
         Serving beverages since 1337!
         <br />
-        <a href="https://mums.dsek.se/">mums.dsek.se</a>
+        <a href="https://mums.mewi.dev/">mums.mewi.dev</a>
     </h4>
 </div>
 
 ## About
 
 
-A web application designed to easily track and manage *mums* throughout the introductory period.  
+A web application designed to easily track and manage *mums*.  
 
 This project is built with simplicity at its core, deliberately avoiding the
 build steps that are common in modern web development. It combines

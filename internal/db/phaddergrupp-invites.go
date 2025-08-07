@@ -3,7 +3,7 @@ package db
 import (
 	"fmt"
 
-	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/memagu/mums/internal/roles"
 )
 
 type PhaddergruppInviteData struct {

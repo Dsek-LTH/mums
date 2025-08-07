@@ -3,10 +3,10 @@ package routes
 import (
 	"github.com/labstack/echo/v4"
 
-	"github.com/Dsek-LTH/mums/internal/auth"
-	"github.com/Dsek-LTH/mums/internal/context"
-	"github.com/Dsek-LTH/mums/internal/handlers"
-	"github.com/Dsek-LTH/mums/internal/roles"
+	"github.com/memagu/mums/internal/auth"
+	"github.com/memagu/mums/internal/context"
+	"github.com/memagu/mums/internal/handlers"
+	"github.com/memagu/mums/internal/roles"
 )
 
 func RegisterRoutes(e *echo.Echo, ss *auth.SessionStore) {

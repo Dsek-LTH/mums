@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/Dsek-LTH/mums/internal/config"
+	"github.com/memagu/mums/internal/config"
 )
 
 type PhaddergruppData struct {
